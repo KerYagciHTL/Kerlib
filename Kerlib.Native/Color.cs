@@ -1,5 +1,8 @@
-﻿namespace Kerlib.Native;
+﻿using System.Runtime.InteropServices;
 
+namespace Kerlib.Native;
+
+[StructLayout(LayoutKind.Sequential)]
 public readonly struct Color : IEquatable<Color>
 {
     public byte R { get; }
