@@ -1,9 +1,8 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
-namespace PureWin32.Native;
+namespace Kerlib.Native;
 
-internal static class NativeMethods
+public static class NativeMethods
 {
     public const int WS_OVERLAPPEDWINDOW = 0x00CF0000;
     public const int WS_VISIBLE = 0x10000000;

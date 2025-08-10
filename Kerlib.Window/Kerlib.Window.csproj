@@ -4,7 +4,11 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>Kerlib.Core</RootNamespace>
+        <RootNamespace>Kerlib.Window</RootNamespace>
     </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Kerlib.Native\Kerlib.Native.csproj" />
+    </ItemGroup>
 
 </Project>
