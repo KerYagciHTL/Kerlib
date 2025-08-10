@@ -25,7 +25,7 @@ public sealed class Win32Window : IDisposable
     {
         _width = width;
         _height = height;
-        _hInstance = NativeMethods.GetModuleHandle(null);
+        _hInstance = NativeMethods.GetModuleHandle(null!);
         _wndProcDelegate = WndProc;
 
         RegisterWindowClass();
@@ -44,13 +44,13 @@ public sealed class Win32Window : IDisposable
             hInstance = _hInstance,
             hIcon = IntPtr.Zero,
             hCursor = IntPtr.Zero,
-            hbrBackground = (IntPtr)(NativeMethods.COLOR_WINDOW + 1),
-            lpszMenuName = null,
+            hbrBackground = NativeMethods.COLOR_WINDOW + 1,
+            lpszMenuName = null!,
             lpszClassName = _className,
             hIconSm = IntPtr.Zero
         };
 
-        ushort regResult = NativeMethods.RegisterClassExW(in wndClassEx);
+        var regResult = NativeMethods.RegisterClassExW(in wndClassEx);
         if (regResult == 0)
             ThrowLastWin32Error("RegisterClassEx failed");
     }
@@ -101,7 +101,7 @@ public sealed class Win32Window : IDisposable
         foreach (var drawable in stack)
         {
             if (drawable is IRenderable renderable) Add(renderable);
-            else throw new Win32Exception("Object not type IRenderable wanted to be added to render stack");
+            else ThrowLastWin32Error("Object not type IRenderable wanted to be added to render stack");
         }
     }
 
@@ -141,8 +141,7 @@ public sealed class Win32Window : IDisposable
 
     private void OnPaint(IntPtr hwnd)
     {
-        var ps = new NativeMethods.PAINTSTRUCT();
-        IntPtr hdc = NativeMethods.BeginPaint(hwnd, out ps);
+        var hdc = NativeMethods.BeginPaint(hwnd, out var ps);
         if (hdc == IntPtr.Zero)
             return;
 
@@ -159,7 +158,7 @@ public sealed class Win32Window : IDisposable
     private static void ThrowLastWin32Error(string msg)
     {
         var errCode = Marshal.GetLastWin32Error();
-        throw new System.ComponentModel.Win32Exception(errCode, msg);
+        throw new Win32Exception(errCode, msg);
     }
 
     public void Dispose()
@@ -167,10 +166,8 @@ public sealed class Win32Window : IDisposable
         if (_disposed) return;
         _disposed = true;
 
-        if (_hwnd != IntPtr.Zero)
-        {
-            NativeMethods.PostQuitMessage(0);
-            _hwnd = IntPtr.Zero;
-        }
+        if (_hwnd == IntPtr.Zero) return;
+        NativeMethods.PostQuitMessage(0);
+        _hwnd = IntPtr.Zero;
     }
 }
