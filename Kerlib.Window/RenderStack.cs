@@ -1,6 +1,8 @@
-﻿namespace Kerlib.Window;
+﻿using System.Collections;
 
-internal sealed class RenderStack
+namespace Kerlib.Window;
+
+public sealed class RenderStack : IEnumerable
 {
     private readonly List<IRenderable> _items = [];
 
@@ -20,5 +22,10 @@ internal sealed class RenderStack
     {
         foreach (var item in _items)
             item.Draw(hdc);
+    }
+
+    public IEnumerator GetEnumerator()
+    {
+        return _items.GetEnumerator();
     }
 }

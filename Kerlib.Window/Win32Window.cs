@@ -1,4 +1,5 @@
-﻿using Kerlib.Native;
+﻿using System.ComponentModel;
+using Kerlib.Native;
 using System.Runtime.InteropServices;
 
 namespace Kerlib.Window;
@@ -93,6 +94,15 @@ public sealed class Win32Window : IDisposable
     {
         _renderStack.Add(drawable);
         Invalidate();
+    }
+    
+    public void Add(RenderStack stack)
+    {
+        foreach (var drawable in stack)
+        {
+            if (drawable is IRenderable renderable) Add(renderable);
+            else throw new Win32Exception("Object not type IRenderable wanted to be added to render stack");
+        }
     }
 
     public void Remove(IRenderable drawable)

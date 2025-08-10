@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
+      <ProjectReference Include="..\Kerlib.Drawing\Kerlib.Drawing.csproj" />
       <ProjectReference Include="..\Kerlib.Window\Kerlib.Window.csproj" />
     </ItemGroup>
 

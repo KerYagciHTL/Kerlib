@@ -1,4 +1,5 @@
-﻿using Kerlib.Window;
+﻿using Kerlib.Drawing;
+using Kerlib.Window;
 namespace Kerlib;
 
 public static class Program
@@ -10,6 +11,9 @@ public static class Program
         window.OnResize += () => Console.WriteLine("Window resized!");
         window.OnClose += () => Console.WriteLine("Window closed!");
 
+        var stack = new RenderStack { new Line(50, 50, 200, 200, 255, 0, 0) };
+        
+        window.Add(stack);
         window.Show();
         window.RunMessageLoop();
     }
