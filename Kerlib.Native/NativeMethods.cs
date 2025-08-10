@@ -110,11 +110,13 @@ public static class NativeMethods
     [DllImport("user32.dll")]
     public static extern void PostQuitMessage(int nExitCode);
 
-    [DllImport("gdi32.dll")]
+    [DllImport("user32.dll")]
     public static extern IntPtr BeginPaint(IntPtr hWnd, out PAINTSTRUCT lpPaint);
 
-    [DllImport("gdi32.dll")]
+    [DllImport("user32.dll")]
     public static extern bool EndPaint(IntPtr hWnd, [In] ref PAINTSTRUCT lpPaint);
+    [DllImport("user32.dll")]
+    public static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
 
     [DllImport("gdi32.dll")]
     public static extern bool MoveToEx(IntPtr hdc, int x, int y, IntPtr lpPoint);

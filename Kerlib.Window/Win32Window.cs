@@ -5,7 +5,7 @@ namespace Kerlib.Window;
 
 public sealed class Win32Window : IDisposable
 {
-    private readonly string _className = "WindowClass";
+    private readonly string _className = "Win32Window";
     private readonly IntPtr _hInstance;
     private IntPtr _hwnd;
     private readonly int _width;
@@ -103,11 +103,8 @@ public sealed class Win32Window : IDisposable
 
     private void Invalidate()
     {
-        NativeMethods.PostQuitMessage(0);
-        // Or alternativ:
-        // NativeMethods.InvalidateRect(_hwnd, IntPtr.Zero, true);
+        NativeMethods.InvalidateRect(_hwnd, IntPtr.Zero, true);
     }
-
     private IntPtr WndProc(IntPtr hwnd, uint msg, UIntPtr wParam, IntPtr lParam)
     {
         switch (msg)
