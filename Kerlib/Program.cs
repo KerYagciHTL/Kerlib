@@ -14,8 +14,8 @@ public static class Program
 
         var stack = new RenderStack();
         
-        stack.Add(new Line(new Point(50, 50), new Point(200, 200), new Color(255, 0, 0)));
-        stack.Add(new Rectangle(new Point(100, 100), 300, 200, new Color(0, 255, 0)));
+        stack.Add(new Line(new Point(50, 50), new Point(200, 200), Color.Red));
+        stack.Add(new Rectangle(new Point(100, 100), 300, 200, Color.Green));
         
         window.Add(stack);
         window.Show();
