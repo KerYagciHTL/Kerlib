@@ -4,21 +4,21 @@ namespace Kerlib.Native;
 
 public static class NativeMethods
 {
-    public const int WS_OVERLAPPEDWINDOW = 0x00CF0000;
-    public const int WS_VISIBLE = 0x10000000;
-    public const int SW_SHOWDEFAULT = 10;
+    public const int WsOverlappedwindow = 0x00CF0000;
+    public const int WsVisible = 0x10000000;
+    public const int SwShowdefault = 10;
 
-    public const int WM_DESTROY = 0x0002;
-    public const int WM_PAINT = 0x000F;
-    public const int WM_SIZE = 0x0005;
+    public const int WmDestroy = 0x0002;
+    public const int WmPaint = 0x000F;
+    public const int WmSize = 0x0005;
 
-    public const int CS_HREDRAW = 0x0002;
-    public const int CS_VREDRAW = 0x0001;
+    public const int CsHredraw = 0x0002;
+    public const int CsVredraw = 0x0001;
 
-    public const int COLOR_WINDOW = 5;
+    public const int ColorWindow = 5;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    public struct WNDCLASSEXW
+    public struct Wndclassexw
     {
         public uint cbSize;
         public uint style;
@@ -37,28 +37,28 @@ public static class NativeMethods
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct MSG
+    public struct Msg
     {
         public IntPtr hwnd;
         public uint message;
         public UIntPtr wParam;
         public IntPtr lParam;
         public uint time;
-        public POINT pt;
+        public Point pt;
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct POINT { public int x; public int y; }
+    public struct Point { public int x; public int y; }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct RECT { public int left; public int top; public int right; public int bottom; }
+    public struct Rect { public int left; public int top; public int right; public int bottom; }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct PAINTSTRUCT
+    public struct Paintstruct
     {
         public IntPtr hdc;
         public int fErase;
-        public RECT rcPaint;
+        public Rect rcPaint;
         public int fRestore;
         public int fIncUpdate;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
@@ -69,7 +69,7 @@ public static class NativeMethods
     public static extern IntPtr GetModuleHandle(string lpModuleName);
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-    public static extern ushort RegisterClassExW(in WNDCLASSEXW lpwcx);
+    public static extern ushort RegisterClassExW(in Wndclassexw lpwcx);
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern IntPtr CreateWindowExW(
@@ -99,22 +99,22 @@ public static class NativeMethods
     public static extern bool UpdateWindow(IntPtr hWnd);
 
     [DllImport("user32.dll")]
-    public static extern bool GetMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+    public static extern bool GetMessage(out Msg lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
 
     [DllImport("user32.dll")]
-    public static extern bool TranslateMessage([In] ref MSG lpMsg);
+    public static extern bool TranslateMessage([In] ref Msg lpMsg);
 
     [DllImport("user32.dll")]
-    public static extern IntPtr DispatchMessage([In] ref MSG lpmsg);
+    public static extern IntPtr DispatchMessage([In] ref Msg lpmsg);
 
     [DllImport("user32.dll")]
     public static extern void PostQuitMessage(int nExitCode);
 
     [DllImport("user32.dll")]
-    public static extern IntPtr BeginPaint(IntPtr hWnd, out PAINTSTRUCT lpPaint);
+    public static extern IntPtr BeginPaint(IntPtr hWnd, out Paintstruct lpPaint);
 
     [DllImport("user32.dll")]
-    public static extern bool EndPaint(IntPtr hWnd, [In] ref PAINTSTRUCT lpPaint);
+    public static extern bool EndPaint(IntPtr hWnd, [In] ref Paintstruct lpPaint);
     [DllImport("user32.dll")]
     public static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
 
@@ -136,5 +136,5 @@ public static class NativeMethods
     [DllImport("gdi32.dll")]
     public static extern bool DeleteObject(IntPtr hObject);
 
-    public static uint RGB(byte r, byte g, byte b) => (uint)(r | (g << 8) | (b << 16));
+    public static uint Rgb(byte r, byte g, byte b) => (uint)(r | (g << 8) | (b << 16));
 }

@@ -34,17 +34,17 @@ public sealed class Win32Window : IDisposable
 
     private void RegisterWindowClass()
     {
-        var wndClassEx = new NativeMethods.WNDCLASSEXW
+        var wndClassEx = new NativeMethods.Wndclassexw
         {
-            cbSize = (uint)Marshal.SizeOf<NativeMethods.WNDCLASSEXW>(),
-            style = NativeMethods.CS_HREDRAW | NativeMethods.CS_VREDRAW,
+            cbSize = (uint)Marshal.SizeOf<NativeMethods.Wndclassexw>(),
+            style = NativeMethods.CsHredraw | NativeMethods.CsVredraw,
             lpfnWndProc = Marshal.GetFunctionPointerForDelegate(_wndProcDelegate),
             cbClsExtra = 0,
             cbWndExtra = 0,
             hInstance = _hInstance,
             hIcon = IntPtr.Zero,
             hCursor = IntPtr.Zero,
-            hbrBackground = NativeMethods.COLOR_WINDOW + 1,
+            hbrBackground = NativeMethods.ColorWindow + 1,
             lpszMenuName = null!,
             lpszClassName = _className,
             hIconSm = IntPtr.Zero
@@ -61,7 +61,7 @@ public sealed class Win32Window : IDisposable
             0,
             _className,
             title,
-            NativeMethods.WS_OVERLAPPEDWINDOW | NativeMethods.WS_VISIBLE,
+            NativeMethods.WsOverlappedwindow | NativeMethods.WsVisible,
             100,
             100,
             _width,
@@ -77,7 +77,7 @@ public sealed class Win32Window : IDisposable
 
     public void Show()
     {
-        NativeMethods.ShowWindow(_hwnd, NativeMethods.SW_SHOWDEFAULT);
+        NativeMethods.ShowWindow(_hwnd, NativeMethods.SwShowdefault);
         NativeMethods.UpdateWindow(_hwnd);
     }
 
@@ -119,15 +119,15 @@ public sealed class Win32Window : IDisposable
     {
         switch (msg)
         {
-            case NativeMethods.WM_PAINT:
+            case NativeMethods.WmPaint:
                 OnPaint(hwnd);
                 break;
 
-            case NativeMethods.WM_SIZE:
+            case NativeMethods.WmSize:
                 OnResize?.Invoke();
                 break;
 
-            case NativeMethods.WM_DESTROY:
+            case NativeMethods.WmDestroy:
                 OnClose?.Invoke();
                 NativeMethods.PostQuitMessage(0);
                 break;
