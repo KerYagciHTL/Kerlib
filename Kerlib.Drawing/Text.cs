@@ -1,4 +1,5 @@
-﻿using Kerlib.Native;
+﻿using Kerlib.Interfaces;
+using Kerlib.Native;
 using Kerlib.Window;
 
 namespace Kerlib.Drawing;
@@ -23,25 +24,20 @@ public class Text : IRenderable
 
     public void Draw(IntPtr hdc)
     {
-        // Set text color
         NativeMethods.SetTextColor(hdc, _color);
         
-        // Optional: Transparent background for text
-        NativeMethods.SetBkMode(hdc, 1); // TRANSPARENT
+        // Transparent background for text
+        NativeMethods.SetBkMode(hdc, 1);
 
-        // Create and select font
         IntPtr hFont = NativeMethods.CreateFont(
             -_fontSize, 0, 0, 0, 400,
             0, 0, 0, 1, 0, 0, 0, 0,
-            _fontName
-        );
+            _fontName);
 
         IntPtr oldFont = NativeMethods.SelectObject(hdc, hFont);
 
-        // Draw text
         NativeMethods.TextOutW(hdc, _x, _y, _content, _content.Length);
 
-        // Restore old font and delete created font
         NativeMethods.SelectObject(hdc, oldFont);
         NativeMethods.DeleteObject(hFont);
     }

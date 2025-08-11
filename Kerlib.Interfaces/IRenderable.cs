@@ -1,4 +1,4 @@
-﻿namespace Kerlib.Window;
+﻿namespace Kerlib.Interfaces;
 
 public interface IRenderable
 {

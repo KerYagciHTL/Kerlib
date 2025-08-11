@@ -16,6 +16,14 @@ public static class NativeMethods
     public const int CsVredraw = 0x0001;
 
     public const int ColorWindow = 5;
+    
+    public const uint WmMouseMove   = 0x0200;
+    public const uint WmLButtonDown = 0x0201;
+    public const uint WmLButtonUp   = 0x0202;
+    
+    public const uint DtCenter = 0x00000001;
+    public const uint DtVcenter = 0x00000004;
+    public const uint DT_SINGLELINE = 0x00000020;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct Wndclassexw
@@ -153,6 +161,12 @@ public static class NativeMethods
 
     [DllImport("gdi32.dll")]
     public static extern int SetBkMode(IntPtr hdc, int mode);
+    
+    [DllImport("gdi32.dll", SetLastError = true)]
+    public static extern IntPtr CreateSolidBrush(uint crColor);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern int DrawText(IntPtr hdc, string lpString, int nCount, ref Rect lpRect, uint uFormat);
 
     [DllImport("gdi32.dll")]
     public static extern IntPtr CreatePen(int fnPenStyle, int nWidth, uint crColor);
@@ -163,5 +177,5 @@ public static class NativeMethods
     [DllImport("gdi32.dll")]
     public static extern bool DeleteObject(IntPtr hObject);
 
-    public static uint Rgb(byte r, byte g, byte b) => (uint)(r | (g << 8) | (b << 16));
+    public static uint Rgb(int r, int g, int b) => (uint)(r | (g << 8) | (b << 16));
 }

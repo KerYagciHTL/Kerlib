@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using Kerlib.Native;
 using System.Runtime.InteropServices;
+using Kerlib.Interfaces;
 
 namespace Kerlib.Window;
 
@@ -31,7 +32,7 @@ public sealed class Win32Window : IDisposable
         RegisterWindowClass();
         CreateNativeWindow(title);
     }
-
+    
     private void RegisterWindowClass()
     {
         var wndClassEx = new NativeMethods.Wndclassexw
@@ -132,13 +133,27 @@ public sealed class Win32Window : IDisposable
                 NativeMethods.PostQuitMessage(0);
                 break;
 
+            case NativeMethods.WmMouseMove:
+                foreach (var r in _renderStack.OfType<IButton>())
+                    r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                break;
+
+            case NativeMethods.WmLButtonDown:
+                foreach (var r in _renderStack.OfType<IButton>())
+                    r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                break;
+
+            case NativeMethods.WmLButtonUp:
+                foreach (var r in _renderStack.OfType<IButton>())
+                    r.HandleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                break;
+
             default:
                 return NativeMethods.DefWindowProcW(hwnd, msg, wParam, lParam);
         }
 
         return IntPtr.Zero;
     }
-
     private void OnPaint(IntPtr hwnd)
     {
         var hdc = NativeMethods.BeginPaint(hwnd, out var ps);
@@ -160,7 +175,8 @@ public sealed class Win32Window : IDisposable
         var errCode = Marshal.GetLastWin32Error();
         throw new Win32Exception(errCode, msg);
     }
-
+    private static int GET_X_LPARAM(IntPtr lParam) => (short)(lParam.ToInt32() & 0xFFFF);
+    private static int GET_Y_LPARAM(IntPtr lParam) => (short)((lParam.ToInt32() >> 16) & 0xFFFF);
     public void Dispose()
     {
         if (_disposed) return;

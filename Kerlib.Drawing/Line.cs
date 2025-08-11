@@ -1,4 +1,5 @@
-﻿using Kerlib.Native;
+﻿using Kerlib.Interfaces;
+using Kerlib.Native;
 using Kerlib.Window;
 
 namespace Kerlib.Drawing;

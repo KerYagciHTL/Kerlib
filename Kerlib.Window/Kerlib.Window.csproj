@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Kerlib.Interfaces\Kerlib.Interfaces.csproj" />
       <ProjectReference Include="..\Kerlib.Native\Kerlib.Native.csproj" />
     </ItemGroup>
 
