@@ -21,6 +21,7 @@ public readonly struct Color : IEquatable<Color>
     public static Color Red => new(255, 0, 0);
     public static Color Green => new(0, 255, 0);
     public static Color Blue => new(0, 0, 255);
+    public static Color Yellow => new(255, 255, 0);
 
     public static Color FromSystemColor(System.Drawing.Color color) =>
         new(color.R, color.G, color.B);
