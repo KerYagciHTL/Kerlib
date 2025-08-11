@@ -16,7 +16,8 @@ public static class Program
         
         stack.Add(new Line(new Point(50, 50), new Point(200, 200), Color.Red));
         stack.Add(new Rectangle(new Point(100, 100), 300, 200, Color.Green));
-        
+        stack.Add(new Text(new Point(50, 50), "Hello Kerlib!", Color.Black, "Consolas", 20));
+
         window.Add(stack);
         window.Show();
         window.RunMessageLoop();

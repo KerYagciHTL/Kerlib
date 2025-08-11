@@ -126,6 +126,33 @@ public static class NativeMethods
 
     [DllImport("gdi32.dll")]
     public static extern bool Rectangle(IntPtr hdc, int left, int top, int right, int bottom);
+    
+    [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+    public static extern bool TextOutW(IntPtr hdc, int x, int y, string lpString, int c);
+
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr CreateFont(
+        int nHeight,
+        int nWidth,
+        int nEscapement,
+        int nOrientation,
+        int fnWeight,
+        uint fdwItalic,
+        uint fdwUnderline,
+        uint fdwStrikeOut,
+        uint fdwCharSet,
+        uint fdwOutputPrecision,
+        uint fdwClipPrecision,
+        uint fdwQuality,
+        uint fdwPitchAndFamily,
+        string lpszFace
+    );
+
+    [DllImport("gdi32.dll")]
+    public static extern uint SetTextColor(IntPtr hdc, uint crColor);
+
+    [DllImport("gdi32.dll")]
+    public static extern int SetBkMode(IntPtr hdc, int mode);
 
     [DllImport("gdi32.dll")]
     public static extern IntPtr CreatePen(int fnPenStyle, int nWidth, uint crColor);
