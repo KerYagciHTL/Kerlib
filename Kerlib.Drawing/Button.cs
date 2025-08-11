@@ -8,10 +8,14 @@ namespace Kerlib.Drawing
         private readonly int _x, _y, _width, _height;
         private bool _hovered;
         private bool _pressed;
-        public uint BackgroundNormal { get; set; }
-        public uint BackgroundHover { get; set; }
-        public uint BackgroundPressed { get; set; }
-        public uint Foreground { get; set; }
+        private uint _bgNormal => NativeMethods.Rgb(BackgroundNormal.R, BackgroundNormal.G, BackgroundNormal.B);
+        private uint _bgHover => NativeMethods.Rgb(BackgroundHover.R, BackgroundHover.G, BackgroundHover.B);
+        private uint _bgPressed => NativeMethods.Rgb(BackgroundPressed.R, BackgroundPressed.G, BackgroundPressed.B);
+        private uint _fg => NativeMethods.Rgb(Foreground.R, Foreground.G, Foreground.B);
+        public Color BackgroundNormal { get; set; }
+        public Color BackgroundHover { get; set; }
+        public Color BackgroundPressed { get; set; }
+        public Color Foreground { get; set; }
 
         public string Text { get; set; }
         public bool IsHovered => _hovered;
@@ -32,21 +36,21 @@ namespace Kerlib.Drawing
             Text = text;
 
             // Default
-            BackgroundNormal = NativeMethods.Rgb(200, 200, 200);
-            BackgroundHover = NativeMethods.Rgb(180, 180, 180);
-            BackgroundPressed = NativeMethods.Rgb(160, 160, 160);
-            Foreground = NativeMethods.Rgb(0, 0, 0);
+            BackgroundNormal = new Color(200, 200, 200);
+            BackgroundHover = new Color(180, 180, 180);
+            BackgroundPressed = new Color(160, 160, 160);
+            Foreground = new Color(0, 0, 0);
         }
 
         public void Draw(IntPtr hdc)
         {
-            uint bgColor = _pressed ? BackgroundPressed : _hovered ? BackgroundHover : BackgroundNormal;
+            var bgColor = _pressed ? _bgPressed : _hovered ? _bgHover : _bgNormal;
 
-            IntPtr brush = NativeMethods.CreateSolidBrush(bgColor);
-            IntPtr oldBrush = NativeMethods.SelectObject(hdc, brush);
+            var brush = NativeMethods.CreateSolidBrush(bgColor);
+            var oldBrush = NativeMethods.SelectObject(hdc, brush);
 
-            IntPtr pen = NativeMethods.CreatePen(0, 1, NativeMethods.Rgb(0, 0, 0));
-            IntPtr oldPen = NativeMethods.SelectObject(hdc, pen);
+            var pen = NativeMethods.CreatePen(0, 1, NativeMethods.Rgb(0, 0, 0));
+            var oldPen = NativeMethods.SelectObject(hdc, pen);
 
             NativeMethods.Rectangle(hdc, _x, _y, _x + _width, _y + _height);
 
@@ -64,7 +68,7 @@ namespace Kerlib.Drawing
                 bottom = _y + _height
             };
 
-            NativeMethods.SetTextColor(hdc, Foreground);
+            NativeMethods.SetTextColor(hdc, _fg);
             NativeMethods.SetBkMode(hdc, 1); // TRANSPARENT
             NativeMethods.DrawText(hdc, Text, Text.Length, ref rect,
                 NativeMethods.DtCenter | NativeMethods.DtVcenter | NativeMethods.DT_SINGLELINE);
