@@ -134,18 +134,33 @@ public sealed class Win32Window : IDisposable
                 break;
 
             case NativeMethods.WmMouseMove:
+                var needsInvalidate = false;
                 foreach (var r in _renderStack.OfType<IButton>())
-                    r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                {
+                    if (r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)))
+                        needsInvalidate = true;
+                }
+                if (needsInvalidate)
+                    Invalidate();
                 break;
+
 
             case NativeMethods.WmLButtonDown:
                 foreach (var r in _renderStack.OfType<IButton>())
+                {
                     r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                    Invalidate();
+                }
+
                 break;
 
             case NativeMethods.WmLButtonUp:
                 foreach (var r in _renderStack.OfType<IButton>())
+                {
                     r.HandleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                    Invalidate();
+                }
+
                 break;
 
             default:

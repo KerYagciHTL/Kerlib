@@ -14,11 +14,30 @@ public static class Program
 
         var btn = new Button(100, 100, 200, 50, "Click me!");
 
-        btn.Clicked += _ => Console.WriteLine("Button clicked!");
-        btn.MouseEnter += _ => Console.WriteLine("Mouse entered button.");
-        btn.MouseLeave += _ => Console.WriteLine("Mouse left button.");
-        btn.MouseDown += _ => Console.WriteLine("Mouse down on button.");
-        btn.MouseUp += _ => Console.WriteLine("Mouse up on button.");           
+        btn.Clicked += b =>
+        {
+            Console.WriteLine("Button clicked!");
+            btn.Foreground = NativeMethods.Rgb(255, 255, 255);
+            btn.BackgroundNormal = NativeMethods.Rgb(0, 128, 255);
+        };
+
+        btn.MouseEnter += b =>
+        {
+            Console.WriteLine("Mouse entered!");
+            btn.BackgroundHover = NativeMethods.Rgb(255, 200, 0);
+        };
+
+        btn.MouseLeave += b =>
+        {
+            Console.WriteLine("Mouse left!");
+            btn.BackgroundHover = NativeMethods.Rgb(180, 180, 180);
+        };
+
+        btn.MouseDown += b =>
+        {
+            Console.WriteLine("Pressed down!");
+            btn.BackgroundPressed = NativeMethods.Rgb(255, 0, 0);
+        };        
         
         var stack = new RenderStack();
         

@@ -12,7 +12,7 @@
         event Action<IButton>? MouseDown;
         event Action<IButton>? MouseUp;
 
-        void HandleMouseMove(int x, int y);
+        bool HandleMouseMove(int x, int y);
         void HandleMouseDown(int x, int y);
         void HandleMouseUp(int x, int y);
     }

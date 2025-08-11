@@ -8,11 +8,10 @@ namespace Kerlib.Drawing
         private readonly int _x, _y, _width, _height;
         private bool _hovered;
         private bool _pressed;
-
-        private uint _bgNormal;
-        private uint _bgHover;
-        private uint _bgPressed;
-        private uint _textColor;
+        public uint BackgroundNormal { get; set; }
+        public uint BackgroundHover { get; set; }
+        public uint BackgroundPressed { get; set; }
+        public uint Foreground { get; set; }
 
         public string Text { get; set; }
         public bool IsHovered => _hovered;
@@ -32,17 +31,16 @@ namespace Kerlib.Drawing
             _height = height;
             Text = text;
 
-            // Default colors
-            _bgNormal = NativeMethods.Rgb(200, 200, 200);
-            _bgHover = NativeMethods.Rgb(180, 180, 180);
-            _bgPressed = NativeMethods.Rgb(160, 160, 160);
-            _textColor = NativeMethods.Rgb(0, 0, 0);
+            // Default
+            BackgroundNormal = NativeMethods.Rgb(200, 200, 200);
+            BackgroundHover = NativeMethods.Rgb(180, 180, 180);
+            BackgroundPressed = NativeMethods.Rgb(160, 160, 160);
+            Foreground = NativeMethods.Rgb(0, 0, 0);
         }
 
         public void Draw(IntPtr hdc)
         {
-            // Hintergrundfarbe auswählen
-            uint bgColor = _pressed ? _bgPressed : _hovered ? _bgHover : _bgNormal;
+            uint bgColor = _pressed ? BackgroundPressed : _hovered ? BackgroundHover : BackgroundNormal;
 
             IntPtr brush = NativeMethods.CreateSolidBrush(bgColor);
             IntPtr oldBrush = NativeMethods.SelectObject(hdc, brush);
@@ -66,46 +64,45 @@ namespace Kerlib.Drawing
                 bottom = _y + _height
             };
 
-            NativeMethods.SetTextColor(hdc, _textColor);
+            NativeMethods.SetTextColor(hdc, Foreground);
             NativeMethods.SetBkMode(hdc, 1); // TRANSPARENT
-            NativeMethods.DrawText(hdc, Text, Text.Length, ref rect, NativeMethods.DtCenter | NativeMethods.DtVcenter | NativeMethods.DT_SINGLELINE);
+            NativeMethods.DrawText(hdc, Text, Text.Length, ref rect,
+                NativeMethods.DtCenter | NativeMethods.DtVcenter | NativeMethods.DT_SINGLELINE);
         }
 
-        public void HandleMouseMove(int x, int y)
+        public bool HandleMouseMove(int x, int y)
         {
-            bool inside = Contains(x, y);
-            if (inside && !_hovered)
+            var inside = Contains(x, y);
+            switch (inside)
             {
-                _hovered = true;
-                MouseEnter?.Invoke(this);
-            }
-            else if (!inside && _hovered)
-            {
-                _hovered = false;
-                MouseLeave?.Invoke(this);
+                case true when !_hovered:
+                    _hovered = true;
+                    MouseEnter?.Invoke(this);
+                    return true;
+                case false when _hovered:
+                    _hovered = false;
+                    MouseLeave?.Invoke(this);
+                    return true;
+                default:
+                    return false;
             }
         }
+
 
         public void HandleMouseDown(int x, int y)
         {
-            if (Contains(x, y))
-            {
-                _pressed = true;
-                MouseDown?.Invoke(this);
-            }
+            if (!Contains(x, y)) return;
+            _pressed = true;
+            MouseDown?.Invoke(this);
         }
 
         public void HandleMouseUp(int x, int y)
         {
-            if (_pressed)
-            {
-                _pressed = false;
-                MouseUp?.Invoke(this);
-                if (Contains(x, y))
-                {
-                    Clicked?.Invoke(this);
-                }
-            }
+            if (!_pressed) return;
+            _pressed = false;
+            MouseUp?.Invoke(this);
+            if (Contains(x, y))
+                Clicked?.Invoke(this);
         }
 
         private bool Contains(int x, int y) =>
