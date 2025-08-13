@@ -18,6 +18,7 @@ public sealed class Win32Window : IDisposable
     private bool _disposed;
 
     private readonly RenderStack _renderStack = new();
+    private static bool _classRegistered = false;
 
     public event Action? OnResize;
     public event Action? OnClose;
@@ -35,6 +36,8 @@ public sealed class Win32Window : IDisposable
     
     private void RegisterWindowClass()
     {
+        if (_classRegistered) return;
+
         var wndClassEx = new NativeMethods.Wndclassexw
         {
             cbSize = (uint)Marshal.SizeOf<NativeMethods.Wndclassexw>(),
@@ -54,7 +57,10 @@ public sealed class Win32Window : IDisposable
         var regResult = NativeMethods.RegisterClassExW(in wndClassEx);
         if (regResult == 0)
             ThrowLastWin32Error("RegisterClassEx failed");
+
+        _classRegistered = true;
     }
+
 
     private void CreateNativeWindow(string title)
     {
