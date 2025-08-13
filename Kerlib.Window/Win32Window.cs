@@ -192,11 +192,17 @@ public sealed class Win32Window : IDisposable
     }
     private static int GET_X_LPARAM(IntPtr lParam) => (short)(lParam.ToInt32() & 0xFFFF);
     private static int GET_Y_LPARAM(IntPtr lParam) => (short)((lParam.ToInt32() >> 16) & 0xFFFF);
+    private void ClearEvents()
+    {
+        OnResize = null;
+        OnClose = null;
+    }
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
-
+        ClearEvents();
+        
         if (_hwnd == IntPtr.Zero) return;
         NativeMethods.PostQuitMessage(0);
         _hwnd = IntPtr.Zero;
