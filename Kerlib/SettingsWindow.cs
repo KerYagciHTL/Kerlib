@@ -1,4 +1,5 @@
-﻿using Kerlib.Drawing;
+﻿using Kerlib.Core;
+using Kerlib.Drawing;
 using Kerlib.Native;
 using Kerlib.Window;
 
@@ -16,7 +17,7 @@ public class SettingsWindow : Core.Window
         btnBack.Clicked += (_,_) =>
         {
             Console.WriteLine("Switching to MainWindow...");
-            Switch(new MainWindow());
+            WindowManager.SwitchWindow(new MainWindow());
         };
 
         var stack = new RenderStack();

@@ -24,15 +24,11 @@ public abstract class Window : IDisposable
         _window = new Win32Window(title, width, height);
     }
 
+    internal Win32Window GetWin32Window() => _window;
+
     protected internal void Show()
     {
         _window.Show();
-        _window.RunMessageLoop();
-    }
-
-    public void Switch(Window window)
-    {
-        WindowManager.SwitchWindow(window);
     }
 
     public void Add(IRenderable renderable)
