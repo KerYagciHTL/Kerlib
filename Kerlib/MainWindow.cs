@@ -12,7 +12,7 @@ public class MainWindow : Core.Window
         OnClose  += () => Console.WriteLine("MainWindow closed");
 
         var btnSwitch = new Button(100, 100, 200, 50, "Go to Settings");
-        btnSwitch.Clicked += _ =>
+        btnSwitch.Clicked += (_,_)=>
         {
             Console.WriteLine("Switching to SettingsWindow...");
             Switch(new SettingsWindow());

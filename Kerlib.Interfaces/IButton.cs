@@ -6,11 +6,11 @@
         bool IsHovered { get; }
         bool IsPressed { get; }
 
-        event Action<IButton>? Clicked;
-        event Action<IButton>? MouseEnter;
-        event Action<IButton>? MouseLeave;
-        event Action<IButton>? MouseDown;
-        event Action<IButton>? MouseUp;
+        event EventHandler? Clicked;
+        event EventHandler? MouseEnter;
+        event EventHandler? MouseLeave;
+        event EventHandler? MouseDown;
+        event EventHandler? MouseUp;
 
         bool HandleMouseMove(int x, int y);
         void HandleMouseDown(int x, int y);

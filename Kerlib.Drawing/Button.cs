@@ -21,11 +21,11 @@ namespace Kerlib.Drawing
         public bool IsHovered => _hovered;
         public bool IsPressed => _pressed;
 
-        public event Action<IButton>? Clicked;
-        public event Action<IButton>? MouseEnter;
-        public event Action<IButton>? MouseLeave;
-        public event Action<IButton>? MouseDown;
-        public event Action<IButton>? MouseUp;
+        public event EventHandler? Clicked;
+        public event EventHandler? MouseEnter;
+        public event EventHandler? MouseLeave;
+        public event EventHandler? MouseDown;
+        public event EventHandler? MouseUp;
 
         public Button(int x, int y, int width, int height, string text)
         {
@@ -81,11 +81,11 @@ namespace Kerlib.Drawing
             {
                 case true when !_hovered:
                     _hovered = true;
-                    MouseEnter?.Invoke(this);
+                    MouseEnter?.Invoke(this, EventArgs.Empty);
                     return true;
                 case false when _hovered:
                     _hovered = false;
-                    MouseLeave?.Invoke(this);
+                    MouseLeave?.Invoke(this, EventArgs.Empty);
                     return true;
                 default:
                     return false;
@@ -97,16 +97,16 @@ namespace Kerlib.Drawing
         {
             if (!Contains(x, y)) return;
             _pressed = true;
-            MouseDown?.Invoke(this);
+            MouseDown?.Invoke(this, EventArgs.Empty);
         }
 
         public void HandleMouseUp(int x, int y)
         {
             if (!_pressed) return;
             _pressed = false;
-            MouseUp?.Invoke(this);
+            MouseUp?.Invoke(this, EventArgs.Empty);
             if (Contains(x, y))
-                Clicked?.Invoke(this);
+                Clicked?.Invoke(this, EventArgs.Empty);
         }
 
         private bool Contains(int x, int y) =>
