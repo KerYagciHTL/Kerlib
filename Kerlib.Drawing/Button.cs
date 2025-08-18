@@ -8,15 +8,14 @@ namespace Kerlib.Drawing
         private readonly int _x, _y, _width, _height;
         private bool _hovered;
         private bool _pressed;
-        private uint _bgNormal => NativeMethods.Rgb(BackgroundNormal.R, BackgroundNormal.G, BackgroundNormal.B);
-        private uint _bgHover => NativeMethods.Rgb(BackgroundHover.R, BackgroundHover.G, BackgroundHover.B);
-        private uint _bgPressed => NativeMethods.Rgb(BackgroundPressed.R, BackgroundPressed.G, BackgroundPressed.B);
-        private uint _fg => NativeMethods.Rgb(Foreground.R, Foreground.G, Foreground.B);
+        private uint BgNormal => NativeMethods.Rgb(BackgroundNormal.R, BackgroundNormal.G, BackgroundNormal.B);
+        private uint BgHover => NativeMethods.Rgb(BackgroundHover.R, BackgroundHover.G, BackgroundHover.B);
+        private uint BgPressed => NativeMethods.Rgb(BackgroundPressed.R, BackgroundPressed.G, BackgroundPressed.B);
+        private uint Fg => NativeMethods.Rgb(Foreground.R, Foreground.G, Foreground.B);
         public Color BackgroundNormal { get; set; }
         public Color BackgroundHover { get; set; }
         public Color BackgroundPressed { get; set; }
         public Color Foreground { get; set; }
-
         public string Text { get; set; }
         public bool IsHovered => _hovered;
         public bool IsPressed => _pressed;
@@ -44,7 +43,7 @@ namespace Kerlib.Drawing
 
         public void Draw(IntPtr hdc)
         {
-            var bgColor = _pressed ? _bgPressed : _hovered ? _bgHover : _bgNormal;
+            var bgColor = _pressed ? BgPressed : _hovered ? BgHover : BgNormal;
 
             var brush = NativeMethods.CreateSolidBrush(bgColor);
             var oldBrush = NativeMethods.SelectObject(hdc, brush);
@@ -68,7 +67,7 @@ namespace Kerlib.Drawing
                 bottom = _y + _height
             };
 
-            NativeMethods.SetTextColor(hdc, _fg);
+            NativeMethods.SetTextColor(hdc, Fg);
             NativeMethods.SetBkMode(hdc, 1); // TRANSPARENT
             NativeMethods.DrawText(hdc, Text, Text.Length, ref rect,
                 NativeMethods.DtCenter | NativeMethods.DtVcenter | NativeMethods.DT_SINGLELINE);
