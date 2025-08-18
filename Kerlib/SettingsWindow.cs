@@ -25,5 +25,9 @@ public class SettingsWindow : Core.Window
         stack.Add(btnBack);
 
         Add(stack);
+        
+        Console.WriteLine(Title);
+        Console.WriteLine(Width.ToString());
+        Console.WriteLine(Height.ToString());
     }
 }

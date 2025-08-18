@@ -12,6 +12,7 @@ public class Win32Window : IDisposable
     protected IntPtr _hwnd;
     protected readonly int _width;
     protected readonly int _height;
+    protected readonly string _title;
 
     protected readonly NativeMethods.WndProcDelegate _wndProcDelegate;
 
@@ -28,6 +29,7 @@ public class Win32Window : IDisposable
     {
         _width = width;
         _height = height;
+        _title = title;
         _className = $"Win32Window_{Guid.NewGuid()}";
         _hInstance = NativeMethods.GetModuleHandle(null!);
         _wndProcDelegate = WndProc;
@@ -35,7 +37,7 @@ public class Win32Window : IDisposable
         RegisterWindowClass();
         CreateNativeWindow(title);
     }
-
+    
     protected virtual void RegisterWindowClass()
     {
         if (RegisteredClasses.ContainsKey(_className)) return;
@@ -199,6 +201,9 @@ public class Win32Window : IDisposable
     protected static int GET_X_LPARAM(IntPtr lParam) => (short)(lParam.ToInt32() & 0xFFFF);
     protected static int GET_Y_LPARAM(IntPtr lParam) => (short)((lParam.ToInt32() >> 16) & 0xFFFF);
 
+    public int GetHeight() => _height;
+    public int GetWidth() => _width;
+    public string GetTitle() => _title;
     private void ClearEvents()
     {
         OnResize = null;

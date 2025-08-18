@@ -5,8 +5,11 @@ namespace Kerlib.Core;
 
 public abstract class Window : IDisposable
 {
+    public int Width => _window.GetWidth();
+    public int Height => _window.GetHeight();
+    public string Title => _window.GetTitle();
+    
     private readonly Win32Window _window;
-
     public event Action? OnResize
     {
         add => _window.OnResize += value;

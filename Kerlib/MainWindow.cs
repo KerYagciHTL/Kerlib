@@ -24,5 +24,9 @@ public class MainWindow : Core.Window
         stack.Add(btnSwitch);
 
         Add(stack);
+        
+        Console.WriteLine(Title);
+        Console.WriteLine(Width.ToString());
+        Console.WriteLine(Height.ToString());
     }
 }
