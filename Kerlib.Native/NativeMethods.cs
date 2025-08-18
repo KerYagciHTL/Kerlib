@@ -23,7 +23,7 @@ public static class NativeMethods
     
     public const uint DtCenter = 0x00000001;
     public const uint DtVcenter = 0x00000004;
-    public const uint DT_SINGLELINE = 0x00000020;
+    public const uint DtSingleline = 0x00000020;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct Wndclassexw

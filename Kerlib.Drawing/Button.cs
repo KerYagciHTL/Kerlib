@@ -70,7 +70,7 @@ namespace Kerlib.Drawing
             NativeMethods.SetTextColor(hdc, Fg);
             NativeMethods.SetBkMode(hdc, 1); // TRANSPARENT
             NativeMethods.DrawText(hdc, Text, Text.Length, ref rect,
-                NativeMethods.DtCenter | NativeMethods.DtVcenter | NativeMethods.DT_SINGLELINE);
+                NativeMethods.DtCenter | NativeMethods.DtVcenter | NativeMethods.DtSingleline);
         }
 
         public bool HandleMouseMove(int x, int y)

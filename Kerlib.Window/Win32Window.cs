@@ -5,22 +5,22 @@ using Kerlib.Interfaces;
 
 namespace Kerlib.Window;
 
-public class Win32Window : IDisposable
+public sealed class Win32Window : IDisposable
 {
-    protected readonly string _className;
-    protected readonly IntPtr _hInstance;
-    protected IntPtr _hwnd;
-    protected readonly int _width;
-    protected readonly int _height;
-    protected readonly string _title;
+    private readonly string _className;
+    private readonly IntPtr _hInstance;
+    private IntPtr _hwnd;
+    private readonly int _width;
+    private readonly int _height;
+    private readonly string _title;
 
-    protected readonly NativeMethods.WndProcDelegate _wndProcDelegate;
+    private readonly NativeMethods.WndProcDelegate _wndProcDelegate;
 
-    protected bool _disposed;
-    protected bool _isDestroyed;
+    private bool _disposed;
+    private bool _isDestroyed;
 
-    protected readonly RenderStack _renderStack = new();
-    protected static readonly Dictionary<string, bool> RegisteredClasses = new();
+    private readonly RenderStack _renderStack = new();
+    private static readonly Dictionary<string, bool> RegisteredClasses = new();
 
     public event Action? OnResize;
     public event Action? OnClose;
@@ -37,8 +37,8 @@ public class Win32Window : IDisposable
         RegisterWindowClass();
         CreateNativeWindow(title);
     }
-    
-    protected virtual void RegisterWindowClass()
+
+    private void RegisterWindowClass()
     {
         if (RegisteredClasses.ContainsKey(_className)) return;
 
@@ -65,7 +65,7 @@ public class Win32Window : IDisposable
         RegisteredClasses[_className] = true;
     }
 
-    protected virtual void CreateNativeWindow(string title)
+    private void CreateNativeWindow(string title)
     {
         _hwnd = NativeMethods.CreateWindowExW(
             0,
@@ -85,14 +85,14 @@ public class Win32Window : IDisposable
             ThrowLastWin32Error("CreateWindowEx failed");
     }
 
-    public virtual void Show()
+    public void Show()
     {
         NativeMethods.ShowWindow(_hwnd, NativeMethods.SwShowdefault);
         NativeMethods.UpdateWindow(_hwnd);
         Invalidate();
     }
     
-    public virtual void Destroy()
+    public void Destroy()
     {
         if (_hwnd != IntPtr.Zero && !_isDestroyed)
         {
@@ -117,13 +117,13 @@ public class Win32Window : IDisposable
         }
     }
 
-    protected void Invalidate()
+    private void Invalidate()
     {
         if (_hwnd != IntPtr.Zero)
             NativeMethods.InvalidateRect(_hwnd, IntPtr.Zero, true);
     }
 
-    protected virtual IntPtr WndProc(IntPtr hwnd, uint msg, UIntPtr wParam, IntPtr lParam)
+    private IntPtr WndProc(IntPtr hwnd, uint msg, UIntPtr wParam, IntPtr lParam)
     {
         if (_isDestroyed) 
             return NativeMethods.DefWindowProcW(hwnd, msg, wParam, lParam);
@@ -179,7 +179,7 @@ public class Win32Window : IDisposable
 
     private void OnPaint(IntPtr hwnd)
     {
-        var ps = new NativeMethods.Paintstruct();
+        NativeMethods.Paintstruct ps;
         var hdc = NativeMethods.BeginPaint(hwnd, out ps);
         if (hdc == IntPtr.Zero) return;
 
@@ -193,13 +193,13 @@ public class Win32Window : IDisposable
         }
     }
 
-    protected static void ThrowLastWin32Error(string msg)
+    private static void ThrowLastWin32Error(string msg)
     {
         throw new Win32Exception(Marshal.GetLastWin32Error(), msg);
     }
 
-    protected static int GET_X_LPARAM(IntPtr lParam) => (short)(lParam.ToInt32() & 0xFFFF);
-    protected static int GET_Y_LPARAM(IntPtr lParam) => (short)((lParam.ToInt32() >> 16) & 0xFFFF);
+    private static int GET_X_LPARAM(IntPtr lParam) => (short)(lParam.ToInt32() & 0xFFFF);
+    private static int GET_Y_LPARAM(IntPtr lParam) => (short)((lParam.ToInt32() >> 16) & 0xFFFF);
 
     public int GetHeight() => _height;
     public int GetWidth() => _width;
@@ -210,7 +210,7 @@ public class Win32Window : IDisposable
         OnClose = null;
     }
 
-    public virtual void Dispose()
+    public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
