@@ -15,17 +15,21 @@ public static class WindowManager
         }
         
         _currentWindow = window;
-        _currentWindow.OnClose += () => _shouldQuit = true;
+        _currentWindow.OnClose += OnWindowClose;
         _currentWindow.Show();
     }
     
-    public static void SwitchWindow(Window window)
+    public static void SwitchWindow(Window window, bool closePrevious = true)
     {
         if (_currentWindow != null)
         {
             _currentWindow.OnClose -= OnWindowClose;
-            _currentWindow.GetWin32Window().Destroy();
-            _currentWindow.Dispose();
+
+            if (closePrevious)
+            {
+                _currentWindow.GetWin32Window().Destroy();
+                _currentWindow.Dispose();
+            }
         }
 
         _currentWindow = window;
