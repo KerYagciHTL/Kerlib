@@ -50,11 +50,9 @@ public static class WindowManager
             NativeMethods.TranslateMessage(ref msg);
             NativeMethods.DispatchMessage(ref msg);
         }
-        
-        if (_currentWindow != null)
-        {
-            _currentWindow.Dispose();
-            _currentWindow = null;
-        }
+
+        if (_currentWindow == null) return;
+        _currentWindow.Dispose();
+        _currentWindow = null;
     }
 }

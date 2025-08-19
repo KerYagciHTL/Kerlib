@@ -1,47 +1,25 @@
-﻿using Kerlib.Core;
-using Kerlib.Drawing;
+﻿using Kerlib.Drawing;
 using Kerlib.Native;
-using Kerlib.Window;
 
 namespace Kerlib;
+
 public class MainWindow : Core.Window
 {
-    private readonly Button _button;
-    public MainWindow() 
-        : base("Main Window", 800, 600)
+    public MainWindow() : base("MainWindow", 800, 600)
     {
-        OnResize += OnWindowResize;
-        OnClose += OnWindowClose;
-        
-        _button = new Button(new Point(100, 100), 200, 50, "Go to Settings");
-        _button.Clicked += OnButtonClick;
-        
-        var stack = new RenderStack();
-        stack.Add(new Text(new Point(50, 50), "Welcome to Main Window", Color.Black, "Consolas", 20));
-        stack.Add(_button);
+        var input = new InputField(new Point(50, 50), 200, 30);
 
-        Add(stack);
+        input.BackgroundNormal = new Color(255, 255, 255);
+        input.BackgroundHover = new Color(230, 230, 230);
+        input.BackgroundFocused = new Color(200, 200, 255);
+        input.Foreground = new Color(0, 0, 0);
+
+        input.TextChanged += (s, e) =>
+        {
+            Console.WriteLine("Text geändert: " + input.Text);
+        };
+
         
-        Console.WriteLine(Title);
-        Console.WriteLine(Width.ToString());
-        Console.WriteLine(Height.ToString());
-    }
-    private void OnButtonClick(object? sender, EventArgs e)
-    {
-        Console.WriteLine("Switching to SettingsWindow...");
-        WindowManager.SwitchWindow(new SettingsWindow());
-    }
-    private void OnWindowResize()
-    {
-        Console.WriteLine($"MainWindow resized to {Width}x{Height}");
-    }
-    private void OnWindowClose()
-    {
-        Console.WriteLine("MainWindow closed");
-
-        _button.Clicked -= OnButtonClick;
-
-        OnResize -= OnWindowResize;
-        OnClose -= OnWindowClose;
+        Add(input);
     }
 }

@@ -13,7 +13,7 @@ public class SettingsWindow : Core.Window
     {
         OnResize += OnWindowResize;
         OnClose += OnWindowClose;
-        BackgroundColor = Color.Black;
+        BackgroundColor = Color.Blue;
 
         _button = new Button(new Point(100, 100), 200, 50, "Back to Main");
         _button.Clicked += OnButtonClick;

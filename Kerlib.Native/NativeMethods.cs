@@ -20,12 +20,15 @@ public static class NativeMethods
     public const uint WmMouseMove   = 0x0200;
     public const uint WmLButtonDown = 0x0201;
     public const uint WmLButtonUp   = 0x0202;
+    public const uint WmKeyPress = 0x0102;
     
     public const uint DtCenter = 0x00000001;
     public const uint DtVcenter = 0x00000004;
     public const uint DtSingleline = 0x00000020;
+    public const int DtLeft = 0x0000000;
+    public const int DtRight = 0x00000002;
     
-    public const int GCLP_HBRBACKGROUND = -10;
+    public const int GclpHbrbackground = -10;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct Wndclassexw
@@ -59,6 +62,13 @@ public static class NativeMethods
 
     [StructLayout(LayoutKind.Sequential)]
     public struct Point { public int x; public int y; }
+    
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Size
+    {
+        public int cx;
+        public int cy;
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct Rect { public int left; public int top; public int right; public int bottom; }
@@ -187,10 +197,21 @@ public static class NativeMethods
 
     [DllImport("gdi32.dll")]
     public static extern IntPtr SelectObject(IntPtr hdc, IntPtr hgdiobj);
-
+    
+    [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
+    public static extern bool GetTextExtentPoint32(IntPtr hdc, string str, int len, out Size size);
+    
     [DllImport("gdi32.dll")]
     public static extern bool DeleteObject(IntPtr hObject);
 
+    public static int GetTextWidth(IntPtr hdc, string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return 0;
+
+        GetTextExtentPoint32(hdc, text, text.Length, out Size size);
+        return size.cx;
+    }
     public static uint Rgb(int r, int g, int b) => (uint)(r | (g << 8) | (b << 16));
     public static uint Rgb(Color color) => Rgb(color.R, color.G, color.B);
 }

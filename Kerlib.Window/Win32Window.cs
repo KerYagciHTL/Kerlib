@@ -81,7 +81,7 @@ public sealed class Win32Window : IDisposable
         }
 
         _hBackgroundBrush = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(color));
-        NativeMethods.SetClassLongPtr(_hwnd, NativeMethods.GCLP_HBRBACKGROUND, _hBackgroundBrush);
+        NativeMethods.SetClassLongPtr(_hwnd, NativeMethods.GclpHbrbackground, _hBackgroundBrush);
 
         Invalidate();
     }
@@ -190,27 +190,29 @@ public sealed class Win32Window : IDisposable
             case NativeMethods.WmMouseMove:
                 bool needsInvalidate = false;
                 foreach (var r in _renderStack.OfType<IButton>())
-                {
                     if (r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)))
                         needsInvalidate = true;
-                }
+
+                foreach (var r in _renderStack.OfType<IInputField>())
+                    if (r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)))
+                        needsInvalidate = true;
 
                 if (needsInvalidate) Invalidate();
                 return IntPtr.Zero;
 
             case NativeMethods.WmLButtonDown:
                 foreach (var r in _renderStack.OfType<IButton>())
-                {
                     r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-                }
+
+                foreach (var r in _renderStack.OfType<IInputField>())
+                    r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
                 Invalidate();
                 return IntPtr.Zero;
 
-            case NativeMethods.WmLButtonUp:
-                foreach (var r in _renderStack.OfType<IButton>())
-                {
-                    r.HandleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-                }
+            case NativeMethods.WmKeyPress:
+                foreach (var r in _renderStack.OfType<IInputField>())
+                    r.HandleKeyPress((char)wParam); // oder wParam/KeyChar konvertieren
                 Invalidate();
                 return IntPtr.Zero;
 
