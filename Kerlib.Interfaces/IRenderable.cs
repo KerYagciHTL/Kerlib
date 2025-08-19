@@ -2,5 +2,5 @@
 
 public interface IRenderable
 {
-    void Draw(IntPtr hdc);
+    void Draw(IntPtr rt);
 }

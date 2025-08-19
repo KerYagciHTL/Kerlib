@@ -19,14 +19,20 @@ public sealed class RenderStack : IEnumerable
         _items.Remove(drawable);
     }
 
-    public void DrawAll(IntPtr hdc)
+    public void DrawAll(IntPtr rt)
     {
         foreach (var item in _items)
-            item.Draw(hdc);
+            item.Draw(rt);
     }
 
+    public void Clear()
+    {
+        _items.Clear();
+    }
     public IEnumerator GetEnumerator()
     {
         return _items.GetEnumerator();
     }
+
+    
 }

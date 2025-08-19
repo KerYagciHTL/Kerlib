@@ -22,7 +22,6 @@ public sealed class Win32Window : IDisposable
     private bool _isDestroyed;
 
     private readonly RenderStack _renderStack = new();
-    private readonly RenderStack _toUnsubscribe = new();
     private static readonly Dictionary<string, bool> RegisteredClasses = new();
 
     public event Action? OnResize;
@@ -129,22 +128,22 @@ public sealed class Win32Window : IDisposable
 
     public void Destroy()
     {
-        if (_hwnd == IntPtr.Zero || _isDestroyed) return;
-        NativeMethods.DestroyWindow(_hwnd);
-        _isDestroyed = true;
-        _hwnd = IntPtr.Zero;
+        if (_hwnd != IntPtr.Zero && !_isDestroyed)
+        {
+            NativeMethods.DestroyWindow(_hwnd);
+            _isDestroyed = true;
+            _hwnd = IntPtr.Zero;
+        }
     }
 
     public void Add(IRenderable drawable)
     {
-        _renderStack.Add(drawable);
-
-        if (drawable is INotifyRenderableChanged notify)
+        if(drawable is INotifyRenderableChanged notifyRenderable)
         {
-            notify.Changed += OnNotifyRenderableChanged;
-            _toUnsubscribe.Add(drawable);
+            notifyRenderable.Changed += OnNotifyRenderable;
         }
-
+        
+        _renderStack.Add(drawable);
         Invalidate();
     }
     public void Add(RenderStack stack)
@@ -168,70 +167,70 @@ public sealed class Win32Window : IDisposable
             return NativeMethods.DefWindowProcW(hwnd, msg, wParam, lParam);
 
         switch (msg)
-{
-    case NativeMethods.WmPaint:
-        OnPaint(hwnd);
-        return IntPtr.Zero;
-
-    case NativeMethods.WmSize:
-        if (_hwnd != IntPtr.Zero)
         {
-            if (NativeMethods.GetClientRect(_hwnd, out var rect))
-            {
-                _width = rect.right - rect.left;
-                _height = rect.bottom - rect.top;
-            }
+            case NativeMethods.WmPaint:
+                OnPaint(hwnd);
+                return IntPtr.Zero;
+
+            case NativeMethods.WmSize:
+                if (_hwnd != IntPtr.Zero)
+                {
+                    if (NativeMethods.GetClientRect(_hwnd, out var rect))
+                    {
+                        _width = rect.right - rect.left;
+                        _height = rect.bottom - rect.top;
+                    }
+                }
+                OnResize?.Invoke();
+                return IntPtr.Zero;
+
+            case NativeMethods.WmDestroy:
+                OnClose?.Invoke();
+                ClearEvents();
+                _isDestroyed = true;
+                _hwnd = IntPtr.Zero;
+                return IntPtr.Zero;
+
+            case NativeMethods.WmMouseMove:
+                var needsInvalidate = false;
+                foreach (var r in _renderStack.OfType<IButton>())
+                    if (r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)))
+                        needsInvalidate = true;
+
+                foreach (var r in _renderStack.OfType<IInputField>())
+                    if (r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)))
+                        needsInvalidate = true;
+
+                if (needsInvalidate) Invalidate();
+                return IntPtr.Zero;
+
+            case NativeMethods.WmLButtonDown:
+                foreach (var r in _renderStack.OfType<IButton>())
+                    r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
+                foreach (var r in _renderStack.OfType<IInputField>())
+                    r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+
+                Invalidate();
+                return IntPtr.Zero;
+            
+            case NativeMethods.WmLButtonUp:
+                foreach (var r in _renderStack.OfType<IButton>())
+                {
+                    r.HandleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                }
+                Invalidate();
+                return IntPtr.Zero;
+            
+            case NativeMethods.WmKeyPress:
+                foreach (var r in _renderStack.OfType<IInputField>())
+                    r.HandleKeyPress((char)wParam);
+                Invalidate();
+                return IntPtr.Zero;
+    
+            default:
+                return NativeMethods.DefWindowProcW(hwnd, msg, wParam, lParam);
         }
-        OnResize?.Invoke();
-        return IntPtr.Zero;
-
-    case NativeMethods.WmDestroy:
-        OnClose?.Invoke();
-        ClearEvents();
-        _isDestroyed = true;
-        _hwnd = IntPtr.Zero;
-        return IntPtr.Zero;
-
-    case NativeMethods.WmMouseMove:
-        var needsInvalidate = false;
-        foreach (var r in _renderStack.OfType<IButton>())
-            if (r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)))
-                needsInvalidate = true;
-
-        foreach (var r in _renderStack.OfType<IInputField>())
-            if (r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)))
-                needsInvalidate = true;
-
-        if (needsInvalidate) Invalidate();
-        return IntPtr.Zero;
-
-    case NativeMethods.WmLButtonDown:
-        foreach (var r in _renderStack.OfType<IButton>())
-            r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-
-        foreach (var r in _renderStack.OfType<IInputField>())
-            r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-
-        Invalidate();
-        return IntPtr.Zero;
-
-    case NativeMethods.WmLButtonUp:
-        foreach (var r in _renderStack.OfType<IButton>())
-            r.HandleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-
-        Invalidate();
-        return IntPtr.Zero;
-
-    case NativeMethods.WmChar:
-        foreach (var r in _renderStack.OfType<IInputField>())
-            r.HandleKeyPress((char)wParam);
-        Invalidate();
-        return IntPtr.Zero;
-
-    default:
-        return NativeMethods.DefWindowProcW(hwnd, msg, wParam, lParam);
-}
-
     }
 
     private void OnPaint(IntPtr hwnd)
@@ -249,13 +248,6 @@ public sealed class Win32Window : IDisposable
         }
     }
 
-    private void OnNotifyRenderableChanged(object? sender, EventArgs e)
-    {
-        if (sender is IRenderable)
-        {
-            Invalidate();
-        }
-    }
     private static void ThrowLastWin32Error(string msg)
     {
         throw new Win32Exception(Marshal.GetLastWin32Error(), msg);
@@ -268,18 +260,14 @@ public sealed class Win32Window : IDisposable
     public int GetWidth() => _width;
     public string GetTitle() => _title;
 
+    private void OnNotifyRenderable(object? sender, EventArgs e)
+    {
+        Invalidate();
+    }
     private void ClearEvents()
     {
         OnResize = null;
         OnClose = null;
-        
-        foreach (var item in _toUnsubscribe)
-        {
-            if (item is INotifyRenderableChanged notify)
-            {
-                notify.Changed -= OnNotifyRenderableChanged;
-            }
-        }
     }
 
     public void Dispose()

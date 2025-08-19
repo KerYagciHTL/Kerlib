@@ -17,11 +17,10 @@ public static class NativeMethods
 
     public const int ColorWindow = 5;
     
-    public const int WmMouseMove = 0x0200;
-    public const int WmLButtonDown = 0x0201;
-    public const int WmLButtonUp = 0x0202;
-    public const int WmChar = 0x0102;
-
+    public const uint WmMouseMove   = 0x0200;
+    public const uint WmLButtonDown = 0x0201;
+    public const uint WmLButtonUp   = 0x0202;
+    public const uint WmKeyPress = 0x0102;
     
     public const uint DtCenter = 0x00000001;
     public const uint DtVcenter = 0x00000004;

@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Kerlib.Native\Kerlib.Native.csproj" />
+    </ItemGroup>
+
 </Project>
