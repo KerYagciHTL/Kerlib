@@ -12,6 +12,8 @@ namespace Kerlib.Drawing
         private uint BgHover => NativeMethods.Rgb(BackgroundHover);
         private uint BgPressed => NativeMethods.Rgb(BackgroundPressed);
         private uint Fg => NativeMethods.Rgb(Foreground);
+        
+        public Point Position => new(_x, _y);
         public Color BackgroundNormal { get; set; }
         public Color BackgroundHover { get; set; }
         public Color BackgroundPressed { get; set; }
@@ -26,15 +28,14 @@ namespace Kerlib.Drawing
         public event EventHandler? MouseDown;
         public event EventHandler? MouseUp;
 
-        public Button(int x, int y, int width, int height, string text)
+        public Button(Point pos, int width, int height, string text)
         {
-            _x = x;
-            _y = y;
+            _x = pos.X;
+            _y = pos.Y;
             _width = width;
             _height = height;
             Text = text;
 
-            // Default
             BackgroundNormal = new Color(200, 200, 200);
             BackgroundHover = new Color(180, 180, 180);
             BackgroundPressed = new Color(160, 160, 160);

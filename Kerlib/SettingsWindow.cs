@@ -15,7 +15,7 @@ public class SettingsWindow : Core.Window
         OnClose += OnWindowClose;
         BackgroundColor = Color.Black;
 
-        _button = new Button(100, 100, 200, 50, "Back to Main");
+        _button = new Button(new Point(100, 100), 200, 50, "Back to Main");
         _button.Clicked += OnButtonClick;
 
         var stack = new RenderStack();

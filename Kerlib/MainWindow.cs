@@ -13,7 +13,7 @@ public class MainWindow : Core.Window
         OnResize += OnWindowResize;
         OnClose += OnWindowClose;
         
-        _button = new Button(100, 100, 200, 50, "Go to Settings");
+        _button = new Button(new Point(100, 100), 200, 50, "Go to Settings");
         _button.Clicked += OnButtonClick;
         
         var stack = new RenderStack();
