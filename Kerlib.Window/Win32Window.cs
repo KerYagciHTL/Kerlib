@@ -54,7 +54,7 @@ public sealed class Win32Window : IDisposable
             hInstance = _hInstance,
             hIcon = IntPtr.Zero,
             hCursor = IntPtr.Zero,
-            hbrBackground = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(_backgroundColor.R, _backgroundColor.G, _backgroundColor.B)),
+            hbrBackground = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(_backgroundColor)),
             lpszMenuName = null!,
             lpszClassName = _className,
             hIconSm = IntPtr.Zero
@@ -70,7 +70,7 @@ public sealed class Win32Window : IDisposable
     public void SetBackgroundColor(Color color)
     {
         _backgroundColor = color;
-        var hBrush = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(color.R, color.G, color.B));
+        var hBrush = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(color));
         NativeMethods.SetClassLongPtr(_hwnd, NativeMethods.GCLP_HBRBACKGROUND, hBrush);
         Invalidate();
     }

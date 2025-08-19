@@ -186,4 +186,5 @@ public static class NativeMethods
     public static extern bool DeleteObject(IntPtr hObject);
 
     public static uint Rgb(int r, int g, int b) => (uint)(r | (g << 8) | (b << 16));
+    public static uint Rgb(Color color) => Rgb(color.R, color.G, color.B);
 }

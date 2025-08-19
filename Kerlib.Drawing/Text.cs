@@ -17,7 +17,7 @@ public class Text : IRenderable
         _x = position.X;
         _y = position.Y;
         _content = content;
-        _color = NativeMethods.Rgb(color.R, color.G, color.B);
+        _color = NativeMethods.Rgb(color);
         _fontName = fontName;
         _fontSize = fontSize;
     }

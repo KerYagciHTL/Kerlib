@@ -15,7 +15,7 @@ public class Rectangle : IRenderable
         _top = position.Y;
         _right = position.X + width;
         _bottom = position.Y + height;
-        _color = NativeMethods.Rgb(color.R, color.G, color.B);
+        _color = NativeMethods.Rgb(color);
     }
     public void Draw(IntPtr hdc)
     {

@@ -8,10 +8,10 @@ namespace Kerlib.Drawing
         private readonly int _x, _y, _width, _height;
         private bool _hovered;
         private bool _pressed;
-        private uint BgNormal => NativeMethods.Rgb(BackgroundNormal.R, BackgroundNormal.G, BackgroundNormal.B);
-        private uint BgHover => NativeMethods.Rgb(BackgroundHover.R, BackgroundHover.G, BackgroundHover.B);
-        private uint BgPressed => NativeMethods.Rgb(BackgroundPressed.R, BackgroundPressed.G, BackgroundPressed.B);
-        private uint Fg => NativeMethods.Rgb(Foreground.R, Foreground.G, Foreground.B);
+        private uint BgNormal => NativeMethods.Rgb(BackgroundNormal);
+        private uint BgHover => NativeMethods.Rgb(BackgroundHover);
+        private uint BgPressed => NativeMethods.Rgb(BackgroundPressed);
+        private uint Fg => NativeMethods.Rgb(Foreground);
         public Color BackgroundNormal { get; set; }
         public Color BackgroundHover { get; set; }
         public Color BackgroundPressed { get; set; }

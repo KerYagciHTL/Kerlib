@@ -10,7 +10,6 @@ public abstract class Window : IDisposable
     public int Height => _window.GetHeight();
     public string Title => _window.GetTitle();
     
-    private Color _backgroundColor = Color.White;
     public Color BackgroundColor
     {
         get => _backgroundColor;
@@ -20,6 +19,9 @@ public abstract class Window : IDisposable
             _window.SetBackgroundColor(value);
         }
     }
+    
+    private Color _backgroundColor = Color.White;
+    
     private readonly Win32Window _window;
     public event Action? OnResize
     {

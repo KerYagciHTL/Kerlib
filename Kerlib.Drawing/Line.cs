@@ -12,7 +12,7 @@ public class Line : IRenderable
     public Line(Point a, Point b, Color color)
     {
         _x1 = a.X; _y1 = a.Y; _x2 = b.X; _y2 = b.Y;
-        _color = NativeMethods.Rgb(color.R, color.G, color.B);
+        _color = NativeMethods.Rgb(color);
     }
 
     public void Draw(IntPtr hdc)
