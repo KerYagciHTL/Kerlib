@@ -1,4 +1,5 @@
 ﻿using Kerlib.Interfaces;
+using Kerlib.Native;
 using Kerlib.Window;
 
 namespace Kerlib.Core;
@@ -8,7 +9,17 @@ public abstract class Window : IDisposable
     public int Width => _window.GetWidth();
     public int Height => _window.GetHeight();
     public string Title => _window.GetTitle();
-
+    
+    private Color _backgroundColor = Color.White;
+    public Color BackgroundColor
+    {
+        get => _backgroundColor;
+        set
+        {
+            _backgroundColor = value;
+            _window.SetBackgroundColor(value);
+        }
+    }
     private readonly Win32Window _window;
     public event Action? OnResize
     {
@@ -24,7 +35,7 @@ public abstract class Window : IDisposable
 
     protected Window(string title, int width, int height)
     {
-        _window = new Win32Window(title, width, height);
+        _window = new Win32Window(title, width, height, _backgroundColor);
     }
 
     internal Win32Window GetWin32Window() => _window;

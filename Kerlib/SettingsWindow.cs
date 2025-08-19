@@ -11,8 +11,9 @@ public class SettingsWindow : Core.Window
     public SettingsWindow() 
         : base("Settings Window", 600, 400)
     {
-        OnResize += () => Console.WriteLine("SettingsWindow resized");
-        OnClose  += () => Console.WriteLine("SettingsWindow closed");
+        OnResize += OnWindowResize;
+        OnClose += OnWindowClose;
+        BackgroundColor = Color.Black;
 
         _button = new Button(100, 100, 200, 50, "Back to Main");
         _button.Clicked += OnButtonClick;

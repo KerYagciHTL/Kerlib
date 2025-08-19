@@ -24,6 +24,8 @@ public static class NativeMethods
     public const uint DtCenter = 0x00000001;
     public const uint DtVcenter = 0x00000004;
     public const uint DtSingleline = 0x00000020;
+    
+    public const int GCLP_HBRBACKGROUND = -10;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct Wndclassexw
@@ -128,6 +130,9 @@ public static class NativeMethods
     public static extern bool EndPaint(IntPtr hWnd, [In] ref Paintstruct lpPaint);
     [DllImport("user32.dll")]
     public static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
+    
+    [DllImport("user32.dll", EntryPoint = "SetClassLongPtrW", SetLastError = true)]
+    public static extern IntPtr SetClassLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
     [DllImport("gdi32.dll")]
     public static extern bool MoveToEx(IntPtr hdc, int x, int y, IntPtr lpPoint);

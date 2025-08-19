@@ -13,7 +13,8 @@ public sealed class Win32Window : IDisposable
     private readonly int _width;
     private readonly int _height;
     private readonly string _title;
-
+    private Color _backgroundColor = Color.White;
+    
     private readonly NativeMethods.WndProcDelegate _wndProcDelegate;
 
     private bool _disposed;
@@ -25,7 +26,7 @@ public sealed class Win32Window : IDisposable
     public event Action? OnResize;
     public event Action? OnClose;
 
-    public Win32Window(string title, int width, int height)
+    public Win32Window(string title, int width, int height, Color? bgColor = null)
     {
         _width = width;
         _height = height;
@@ -33,6 +34,7 @@ public sealed class Win32Window : IDisposable
         _className = $"Win32Window_{Guid.NewGuid()}";
         _hInstance = NativeMethods.GetModuleHandle(null!);
         _wndProcDelegate = WndProc;
+        _backgroundColor = bgColor ?? _backgroundColor;
 
         RegisterWindowClass();
         CreateNativeWindow(title);
@@ -52,7 +54,7 @@ public sealed class Win32Window : IDisposable
             hInstance = _hInstance,
             hIcon = IntPtr.Zero,
             hCursor = IntPtr.Zero,
-            hbrBackground = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(240, 240, 240)),
+            hbrBackground = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(_backgroundColor.R, _backgroundColor.G, _backgroundColor.B)),
             lpszMenuName = null!,
             lpszClassName = _className,
             hIconSm = IntPtr.Zero
@@ -63,6 +65,14 @@ public sealed class Win32Window : IDisposable
             ThrowLastWin32Error("RegisterClassEx failed");
 
         RegisteredClasses[_className] = true;
+    }
+
+    public void SetBackgroundColor(Color color)
+    {
+        _backgroundColor = color;
+        var hBrush = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(color.R, color.G, color.B));
+        NativeMethods.SetClassLongPtr(_hwnd, NativeMethods.GCLP_HBRBACKGROUND, hBrush);
+        Invalidate();
     }
 
     private void CreateNativeWindow(string title)
