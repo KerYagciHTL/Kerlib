@@ -22,6 +22,7 @@ public sealed class Win32Window : IDisposable
     private bool _isDestroyed;
 
     private readonly RenderStack _renderStack = new();
+    private readonly RenderStack _toUnsubscribe = new();
     private static readonly Dictionary<string, bool> RegisteredClasses = new();
 
     public event Action? OnResize;
@@ -141,6 +142,7 @@ public sealed class Win32Window : IDisposable
         if (drawable is INotifyRenderableChanged notify)
         {
             notify.Changed += OnNotifyRenderableChanged;
+            _toUnsubscribe.Add(drawable);
         }
 
         Invalidate();
@@ -270,6 +272,14 @@ public sealed class Win32Window : IDisposable
     {
         OnResize = null;
         OnClose = null;
+        
+        foreach (var item in _toUnsubscribe)
+        {
+            if (item is INotifyRenderableChanged notify)
+            {
+                notify.Changed -= OnNotifyRenderableChanged;
+            }
+        }
     }
 
     public void Dispose()
