@@ -10,11 +10,12 @@ public sealed class Win32Window : IDisposable
     private readonly string _className;
     private readonly IntPtr _hInstance;
     private IntPtr _hwnd;
-    private readonly int _width;
-    private readonly int _height;
     private readonly string _title;
     private Color _backgroundColor = Color.White;
-    
+    private int _width, _height;
+
+    private IntPtr _hBackgroundBrush = IntPtr.Zero;
+
     private readonly NativeMethods.WndProcDelegate _wndProcDelegate;
 
     private bool _disposed;
@@ -28,21 +29,23 @@ public sealed class Win32Window : IDisposable
 
     public Win32Window(string title, int width, int height, Color? bgColor = null)
     {
-        _width = width;
-        _height = height;
         _title = title;
+        _height = height;
+        _width = width;
         _className = $"Win32Window_{Guid.NewGuid()}";
         _hInstance = NativeMethods.GetModuleHandle(null!);
         _wndProcDelegate = WndProc;
         _backgroundColor = bgColor ?? _backgroundColor;
 
         RegisterWindowClass();
-        CreateNativeWindow(title);
+        CreateNativeWindow(title, width, height);
     }
 
     private void RegisterWindowClass()
     {
         if (RegisteredClasses.ContainsKey(_className)) return;
+
+        _hBackgroundBrush = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(_backgroundColor));
 
         var wndClassEx = new NativeMethods.Wndclassexw
         {
@@ -54,7 +57,7 @@ public sealed class Win32Window : IDisposable
             hInstance = _hInstance,
             hIcon = IntPtr.Zero,
             hCursor = IntPtr.Zero,
-            hbrBackground = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(_backgroundColor)),
+            hbrBackground = _hBackgroundBrush,
             lpszMenuName = null!,
             lpszClassName = _className,
             hIconSm = IntPtr.Zero
@@ -70,13 +73,34 @@ public sealed class Win32Window : IDisposable
     public void SetBackgroundColor(Color color)
     {
         _backgroundColor = color;
-        var hBrush = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(color));
-        NativeMethods.SetClassLongPtr(_hwnd, NativeMethods.GCLP_HBRBACKGROUND, hBrush);
+
+        if (_hBackgroundBrush != IntPtr.Zero)
+        {
+            NativeMethods.DeleteObject(_hBackgroundBrush);
+            _hBackgroundBrush = IntPtr.Zero;
+        }
+
+        _hBackgroundBrush = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(color));
+        NativeMethods.SetClassLongPtr(_hwnd, NativeMethods.GCLP_HBRBACKGROUND, _hBackgroundBrush);
+
         Invalidate();
     }
 
-    private void CreateNativeWindow(string title)
+    private void CreateNativeWindow(string title, int clientWidth, int clientHeight)
     {
+        var rect = new NativeMethods.Rect { left = 0, top = 0, right = clientWidth, bottom = clientHeight };
+
+        if (!NativeMethods.AdjustWindowRectEx(ref rect,
+                NativeMethods.WsOverlappedwindow,
+                false,
+                0))
+        {
+            ThrowLastWin32Error("AdjustWindowRectEx failed");
+        }
+
+        int winWidth = rect.right - rect.left;
+        int winHeight = rect.bottom - rect.top;
+
         _hwnd = NativeMethods.CreateWindowExW(
             0,
             _className,
@@ -84,8 +108,8 @@ public sealed class Win32Window : IDisposable
             NativeMethods.WsOverlappedwindow | NativeMethods.WsVisible,
             100,
             100,
-            _width,
-            _height,
+            winWidth,
+            winHeight,
             IntPtr.Zero,
             IntPtr.Zero,
             _hInstance,
@@ -101,7 +125,7 @@ public sealed class Win32Window : IDisposable
         NativeMethods.UpdateWindow(_hwnd);
         Invalidate();
     }
-    
+
     public void Destroy()
     {
         if (_hwnd != IntPtr.Zero && !_isDestroyed)
@@ -122,7 +146,7 @@ public sealed class Win32Window : IDisposable
     {
         foreach (var drawable in stack)
         {
-            if (drawable is IRenderable renderable) 
+            if (drawable is IRenderable renderable)
                 Add(renderable);
         }
     }
@@ -135,9 +159,9 @@ public sealed class Win32Window : IDisposable
 
     private IntPtr WndProc(IntPtr hwnd, uint msg, UIntPtr wParam, IntPtr lParam)
     {
-        if (_isDestroyed) 
+        if (_isDestroyed)
             return NativeMethods.DefWindowProcW(hwnd, msg, wParam, lParam);
-            
+
         switch (msg)
         {
             case NativeMethods.WmPaint:
@@ -145,6 +169,14 @@ public sealed class Win32Window : IDisposable
                 return IntPtr.Zero;
 
             case NativeMethods.WmSize:
+                if (_hwnd != IntPtr.Zero)
+                {
+                    if (NativeMethods.GetClientRect(_hwnd, out var rect))
+                    {
+                        _width = rect.right - rect.left;
+                        _height = rect.bottom - rect.top;
+                    }
+                }
                 OnResize?.Invoke();
                 return IntPtr.Zero;
 
@@ -214,6 +246,7 @@ public sealed class Win32Window : IDisposable
     public int GetHeight() => _height;
     public int GetWidth() => _width;
     public string GetTitle() => _title;
+
     private void ClearEvents()
     {
         OnResize = null;
@@ -224,12 +257,18 @@ public sealed class Win32Window : IDisposable
     {
         if (_disposed) return;
         _disposed = true;
-        
+
+        if (_hBackgroundBrush != IntPtr.Zero)
+        {
+            NativeMethods.DeleteObject(_hBackgroundBrush);
+            _hBackgroundBrush = IntPtr.Zero;
+        }
+
         if (!_isDestroyed && _hwnd != IntPtr.Zero)
         {
             Destroy();
         }
-        
+
         ClearEvents();
     }
 }
