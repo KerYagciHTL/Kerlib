@@ -1,20 +1,43 @@
-﻿using Kerlib.Drawing;
+﻿using Kerlib.Core;
+using Kerlib.Drawing;
 using Kerlib.Native;
+using Kerlib.Window;
 
 namespace Kerlib;
 
 public class MainWindow : Core.Window
 {
+    private readonly InputField _inputField;
+    private readonly Button _submitButton;
+    private readonly Text _wroteDownText;
     public MainWindow() : base("MainWindow", 800, 600)
     {
-        var input = new InputField(new Point(50, 50), 200, 30);
+        var stack = new RenderStack();
         
-        input.TextChanged += (_, _) =>
-        {
-            Console.WriteLine("Text geändert: " + input.Text);
-        };
+        _inputField = new InputField(new Point(300, 200), 200, 30);
+        _inputField.TextChanged += OnInputFieldTextChanged;
+        
+        _submitButton = new Button(new Point(300, 250), 100, 30, "Submit");
+        _submitButton.Clicked += OnSubmitButtonClicked;
+        
+        _wroteDownText = new Text(new Point(300, 300), "You wrote down: ", Color.Black);
+        
+        stack.Add(_inputField);
+        stack.Add(_submitButton);
+        stack.Add(_wroteDownText);
+        
+        Add(stack);
+    }
 
-        
-        Add(input);
+    private void OnSubmitButtonClicked(object? sender, EventArgs e)
+    {
+        if (sender is not Button button) return;
+        Console.WriteLine($"Button clicked: {button.Text}");
+        _wroteDownText.Content = $"You wrote down: {_inputField.Text}";
+    }
+    private void OnInputFieldTextChanged(object? sender, EventArgs e)
+    {
+        if(sender is not InputField inputField) return;
+        Console.WriteLine($"Text changed to: {inputField.Text}");
     }
 }

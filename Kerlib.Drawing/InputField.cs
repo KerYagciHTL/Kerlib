@@ -54,7 +54,6 @@ namespace Kerlib.Drawing
 
         public void Draw(IntPtr hdc)
         {
-            // Hintergrund
             var bgColor = _focused ? BgFocused : _hovered ? BgHover : BgNormal;
             var brush = NativeMethods.CreateSolidBrush(bgColor);
             var oldBrush = NativeMethods.SelectObject(hdc, brush);
@@ -69,7 +68,6 @@ namespace Kerlib.Drawing
             NativeMethods.SelectObject(hdc, oldPen);
             NativeMethods.DeleteObject(pen);
 
-            // Text
             var rect = new NativeMethods.Rect
             {
                 left = _x + 4,
@@ -83,40 +81,37 @@ namespace Kerlib.Drawing
             NativeMethods.DrawText(hdc, _text, _text.Length, ref rect,
                 NativeMethods.DtLeft | NativeMethods.DtVcenter | NativeMethods.DtSingleline);
 
-            // Cursor Blinken
             if (_focused && (DateTime.Now - _lastBlink).TotalMilliseconds > 500)
             {
                 _cursorVisible = !_cursorVisible;
                 _lastBlink = DateTime.Now;
             }
 
-            if (_focused && _cursorVisible)
-            {
-                int cursorX = _x + 4 + NativeMethods.GetTextWidth(hdc, _text.Substring(0, _cursorPos));
-                NativeMethods.MoveToEx(hdc, cursorX, _y + 2, IntPtr.Zero);
-                NativeMethods.LineTo(hdc, cursorX, _y + _height - 2);
-            }
+            if (!_focused || !_cursorVisible) return;
+            var cursorX = _x + 4 + NativeMethods.GetTextWidth(hdc, _text.Substring(0, _cursorPos));
+            NativeMethods.MoveToEx(hdc, cursorX, _y + 2, IntPtr.Zero);
+            NativeMethods.LineTo(hdc, cursorX, _y + _height - 2);
         }
 
         public bool HandleMouseMove(int x, int y)
         {
-            bool inside = Contains(x, y);
-            if (inside && !_hovered)
+            var inside = Contains(x, y);
+            switch (inside)
             {
-                _hovered = true;
-                return true;
+                case true when !_hovered:
+                    _hovered = true;
+                    return true;
+                case false when _hovered:
+                    _hovered = false;
+                    return true;
+                default:
+                    return false;
             }
-            else if (!inside && _hovered)
-            {
-                _hovered = false;
-                return true;
-            }
-            return false;
         }
 
         public void HandleMouseDown(int x, int y)
         {
-            bool inside = Contains(x, y);
+            var inside = Contains(x, y);
             if (inside)
             {
                 if (!_focused)
@@ -127,11 +122,9 @@ namespace Kerlib.Drawing
             }
             else
             {
-                if (_focused)
-                {
-                    _focused = false;
-                    FocusLost?.Invoke(this, EventArgs.Empty);
-                }
+                if (!_focused) return;
+                _focused = false;
+                FocusLost?.Invoke(this, EventArgs.Empty);
             }
         }
 

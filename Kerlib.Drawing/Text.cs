@@ -4,10 +4,24 @@ using Kerlib.Window;
 
 namespace Kerlib.Drawing;
 
-public class Text : IRenderable
+public class Text : IRenderable, INotifyRenderableChanged
 {
+    public event EventHandler? Changed;
+
+    public string Content
+    { 
+        get => _content;
+        set
+        {
+            if (string.IsNullOrEmpty(value))
+                throw new ArgumentException("Content cannot be null or empty.", nameof(value));
+            _content = value;
+            Changed?.Invoke(this, EventArgs.Empty); // Event feuern
+        }
+    }
+
     private readonly int _x, _y;
-    private readonly string _content;
+    private string _content;
     private readonly uint _color;
     private readonly string _fontName;
     private readonly int _fontSize;
@@ -25,8 +39,6 @@ public class Text : IRenderable
     public void Draw(IntPtr hdc)
     {
         NativeMethods.SetTextColor(hdc, _color);
-        
-        // Transparent background for text
         NativeMethods.SetBkMode(hdc, 1);
 
         IntPtr hFont = NativeMethods.CreateFont(
