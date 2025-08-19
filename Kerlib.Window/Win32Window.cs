@@ -268,6 +268,15 @@ public sealed class Win32Window : IDisposable
     {
         OnResize = null;
         OnClose = null;
+        foreach (var r in _renderStack)
+        {
+            if(r is INotifyRenderableChanged notifyRenderable)
+            {
+                notifyRenderable.Changed -= OnNotifyRenderable;
+            }
+        }
+        
+        _renderStack.Clear();
     }
 
     public void Dispose()
