@@ -12,6 +12,7 @@ public class MainWindow : Core.Window
     private readonly Text _wroteDownText;
     public MainWindow() : base("MainWindow", 800, 600)
     {
+        OnClose += OnWindowClose;
         var stack = new RenderStack();
         
         _inputField = new InputField(new Point(300, 200), 200, 30);
@@ -39,5 +40,11 @@ public class MainWindow : Core.Window
     {
         if(sender is not InputField inputField) return;
         Console.WriteLine($"Text changed to: {inputField.Text}");
+    }
+    
+    private void OnWindowClose()
+    {
+        _inputField.TextChanged -= OnInputFieldTextChanged;
+        _submitButton.Clicked -= OnSubmitButtonClicked;
     }
 }
