@@ -46,5 +46,6 @@ public class MainWindow : Core.Window
     {
         _inputField.TextChanged -= OnInputFieldTextChanged;
         _submitButton.Clicked -= OnSubmitButtonClicked;
+        OnClose -= OnWindowClose;
     }
 }
