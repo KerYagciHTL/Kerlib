@@ -7,7 +7,10 @@ public class MainWindow : Core.Window
 {
     public MainWindow() : base("MainWindow", 800, 600)
     {
-        var text = new Text(new Point(350, 250), "Hello, Kerlib!", Color.Black);
-        Add(text);
+        /*var text = new Text(new Point(350, 250), "Hello, Kerlib!", Color.Black);
+        Add(text);*/
+        
+        var image = new Image(new Point(100, 100), "Puppy.bmp");
+        Add(image);
     }
 }

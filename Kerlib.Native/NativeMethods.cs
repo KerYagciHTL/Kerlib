@@ -4,6 +4,10 @@ namespace Kerlib.Native;
 
 public static class NativeMethods
 {
+    public const int ImageBitmap = 0;
+    public const int LrLoadfromfile = 0x0010;
+    public const int Srccopy = 0x00CC0020;
+    
     public const int WsOverlappedwindow = 0x00CF0000;
     public const int WsVisible = 0x10000000;
     public const int SwShowdefault = 10;
@@ -85,6 +89,18 @@ public static class NativeMethods
         public byte[] rgbReserved;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct Bitmap
+    {
+        public int bmType;
+        public int bmWidth;
+        public int bmHeight;
+        public int bmWidthBytes;
+        public ushort bmPlanes;
+        public ushort bmBitsPixel;
+        public IntPtr bmBits;
+    }
+
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern IntPtr GetModuleHandle(string lpModuleName);
     
@@ -133,6 +149,15 @@ public static class NativeMethods
     [DllImport("user32.dll")]
     public static extern void PostQuitMessage(int nExitCode);
 
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern IntPtr LoadImage(
+        IntPtr hInst,
+        string name,
+        uint type,
+        int cx,
+        int cy,
+        uint fuLoad);
+    
     [DllImport("user32.dll")]
     public static extern IntPtr BeginPaint(IntPtr hWnd, out Paintstruct lpPaint);
 
@@ -201,9 +226,24 @@ public static class NativeMethods
     [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
     public static extern bool GetTextExtentPoint32(IntPtr hdc, string str, int len, out Size size);
     
-    [DllImport("gdi32.dll")]
+    [DllImport("gdi32.dll", SetLastError = true)]
+    public static extern IntPtr CreateCompatibleDC(IntPtr hdc);
+
+    [DllImport("gdi32.dll", SetLastError = true)]
+    public static extern bool DeleteDC(IntPtr hdc);
+
+    [DllImport("gdi32.dll", SetLastError = true)]
     public static extern bool DeleteObject(IntPtr hObject);
 
+    [DllImport("gdi32.dll", SetLastError = true)]
+    public static extern int GetObject(IntPtr hgdiobj, int cbBuffer, out Bitmap lpvObject);
+
+    [DllImport("gdi32.dll", SetLastError = true)]
+    public static extern bool StretchBlt(
+        IntPtr hdcDest, int xDest, int yDest, int wDest, int hDest,
+        IntPtr hdcSrc, int xSrc, int ySrc, int wSrc, int hSrc,
+        int rop);
+    
     public static int GetTextWidth(IntPtr hdc, string text)
     {
         if (string.IsNullOrEmpty(text))

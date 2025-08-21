@@ -6,6 +6,15 @@
       <ProjectReference Include="..\Kerlib.Window\Kerlib.Window.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Puppy.png">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="Puppy.bmp">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>

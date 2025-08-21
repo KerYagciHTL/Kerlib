@@ -264,19 +264,30 @@ public sealed class Win32Window : IDisposable
     {
         Invalidate();
     }
-    private void ClearEvents()
+    
+    private void CleanRenderStack()
     {
-        OnResize = null;
-        OnClose = null;
         foreach (var r in _renderStack)
         {
-            if(r is INotifyRenderableChanged notifyRenderable)
+            switch (r)
             {
-                notifyRenderable.Changed -= OnNotifyRenderable;
+                case INotifyRenderableChanged notifyRenderable:
+                    notifyRenderable.Changed -= OnNotifyRenderable;
+                    break;
+                case IDisposable disposable:
+                    disposable.Dispose();
+                    break;
             }
         }
         
         _renderStack.Clear();
+    }
+    private void ClearEvents()
+    {
+        OnResize = null;
+        OnClose = null;
+        
+        CleanRenderStack();
     }
 
     public void Dispose()

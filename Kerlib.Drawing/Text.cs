@@ -16,7 +16,7 @@ public class Text : IRenderable, INotifyRenderableChanged
             if (string.IsNullOrEmpty(value))
                 throw new ArgumentException("Content cannot be null or empty.", nameof(value));
             _content = value;
-            Changed?.Invoke(this, EventArgs.Empty); // Event feuern
+            Changed?.Invoke(this, EventArgs.Empty);
         }
     }
 
