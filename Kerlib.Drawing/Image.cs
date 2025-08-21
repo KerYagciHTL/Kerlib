@@ -1,17 +1,52 @@
 ﻿using Kerlib.Interfaces;
 using Kerlib.Native;
+using System.Drawing;
+using Point = Kerlib.Native.Point;
 
 namespace Kerlib.Drawing
 {
-    [Obsolete("Only support for bmp files")]
-    public class Image : IRenderable, IDisposable
+    public class Image : IRenderable, IDisposable, INotifyRenderableChanged
     {
-        private readonly int _x, _y;
-        private readonly int _width, _height;
+        private int _x, _y;
+        private int _width, _height;
         private IntPtr _hBitmap;
         private IntPtr _hBitmapOriginal = IntPtr.Zero;
 
-        public string Path { get; }
+        public event EventHandler? Changed;
+        
+        public Point Position
+        {
+            get => new(_x, _y);
+            set
+            {
+                if (_x == value.X && _y == value.Y) return;
+                _x = value.X;
+                _y = value.Y;
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public int Width 
+        {
+            get => _width;
+            set
+            {
+                if (_width == value) return;
+                _width = value;
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+        public int Height 
+        {
+            get => _height;
+            set
+            {
+                if (_height == value) return;
+                _height = value;
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public readonly string Path;
 
         public Image(Point position, string path, int? width = null, int? height = null)
         {
@@ -19,37 +54,33 @@ namespace Kerlib.Drawing
             _y = position.Y;
             Path = path;
 
-            _hBitmap = NativeMethods.LoadImage(
-                IntPtr.Zero,
-                Path,
-                NativeMethods.ImageBitmap,
-                0,
-                0,
-                NativeMethods.LrLoadfromfile);
+            using (var img = System.Drawing.Image.FromFile(path))
+            {
+                _width = width ?? img.Width;
+                _height = height ?? img.Height;
+
+                using (var resized = new Bitmap(img, _width, _height))
+                {
+                    _hBitmap = resized.GetHbitmap();
+                }
+            }
 
             if (_hBitmap == IntPtr.Zero)
-                throw new InvalidOperationException($"Image could not be found: {Path}");
-
-            NativeMethods.Bitmap bmp;
-            NativeMethods.GetObject(_hBitmap, System.Runtime.InteropServices.Marshal.SizeOf(typeof(NativeMethods.Bitmap)), out bmp);
-
-            _width = width ?? bmp.bmWidth;
-            _height = height ?? bmp.bmHeight;
+                throw new InvalidOperationException($"Konnte Bild nicht laden: {Path}");
         }
 
         public void Draw(IntPtr hdc)
         {
             if (_hBitmap == IntPtr.Zero) return;
 
-            IntPtr hdcMem = NativeMethods.CreateCompatibleDC(hdc);
+            var hdcMem = NativeMethods.CreateCompatibleDC(hdc);
             _hBitmapOriginal = NativeMethods.SelectObject(hdcMem, _hBitmap);
 
-            NativeMethods.StretchBlt(
+            NativeMethods.BitBlt(
                 hdc,
                 _x, _y, _width, _height,
                 hdcMem,
                 0, 0,
-                _width, _height,
                 NativeMethods.Srccopy);
 
             NativeMethods.SelectObject(hdcMem, _hBitmapOriginal);
@@ -58,11 +89,9 @@ namespace Kerlib.Drawing
 
         public void Dispose()
         {
-            if (_hBitmap != IntPtr.Zero)
-            {
-                NativeMethods.DeleteObject(_hBitmap);
-                _hBitmap = IntPtr.Zero;
-            }
+            if (_hBitmap == IntPtr.Zero) return;
+            NativeMethods.DeleteObject(_hBitmap);
+            _hBitmap = IntPtr.Zero;
         }
     }
 }

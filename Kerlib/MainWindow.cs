@@ -10,7 +10,7 @@ public class MainWindow : Core.Window
         /*var text = new Text(new Point(350, 250), "Hello, Kerlib!", Color.Black);
         Add(text);*/
         
-        var image = new Image(new Point(100, 100), "Puppy.bmp");
+        var image = new Image(new Point(375, 275), "Puppy.png", 50, 50);
         Add(image);
     }
 }

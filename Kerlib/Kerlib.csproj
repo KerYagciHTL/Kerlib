@@ -8,9 +8,6 @@
 
     <ItemGroup>
       <None Update="Puppy.png">
-        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-      </None>
-      <None Update="Puppy.bmp">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

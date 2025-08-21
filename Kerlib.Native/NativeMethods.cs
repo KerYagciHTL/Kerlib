@@ -236,13 +236,9 @@ public static class NativeMethods
     public static extern bool DeleteObject(IntPtr hObject);
 
     [DllImport("gdi32.dll", SetLastError = true)]
-    public static extern int GetObject(IntPtr hgdiobj, int cbBuffer, out Bitmap lpvObject);
-
-    [DllImport("gdi32.dll", SetLastError = true)]
-    public static extern bool StretchBlt(
-        IntPtr hdcDest, int xDest, int yDest, int wDest, int hDest,
-        IntPtr hdcSrc, int xSrc, int ySrc, int wSrc, int hSrc,
-        int rop);
+    public static extern bool BitBlt(
+        IntPtr hdcDest, int nXDest, int nYDest, int nWidth, int nHeight,
+        IntPtr hdcSrc, int nXSrc, int nYSrc, int dwRop);
     
     public static int GetTextWidth(IntPtr hdc, string text)
     {
