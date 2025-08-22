@@ -5,7 +5,7 @@ using Point = Kerlib.Native.Point;
 
 namespace Kerlib.Drawing
 {
-    public class Image : IRenderable, IDisposable, INotifyRenderableChanged
+    public class Image : IImage
     {
         private int _x, _y;
         private int _width, _height;
@@ -46,7 +46,7 @@ namespace Kerlib.Drawing
             }
         }
 
-        public readonly string Path;
+        public string Path { get; }
 
         public Image(Point position, string path, int? width = null, int? height = null)
         {
