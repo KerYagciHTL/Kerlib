@@ -7,23 +7,30 @@ namespace Kerlib.Drawing
 {
     public class Image : IImage
     {
-        private int _x, _y;
         private int _width, _height;
+        private Point _position;
         private IntPtr _hBitmap;
         private IntPtr _hBitmapOriginal = IntPtr.Zero;
 
         public event EventHandler? Changed;
         
+
         public Point Position
         {
-            get => new(_x, _y);
+            get => _position;
             set
             {
-                if (_x == value.X && _y == value.Y) return;
-                _x = value.X;
-                _y = value.Y;
+                if (_position == value) return;
+                _position.Changed -= PositionChanged;
+                _position = value;
+                _position.Changed += PositionChanged;
                 Changed?.Invoke(this, EventArgs.Empty);
             }
+        }
+
+        private void PositionChanged(object? sender, EventArgs e)
+        {
+            Changed?.Invoke(this, EventArgs.Empty);
         }
         public int Width 
         {
@@ -50,8 +57,8 @@ namespace Kerlib.Drawing
 
         public Image(Point position, string path, int? width = null, int? height = null)
         {
-            _x = position.X;
-            _y = position.Y;
+            _position = position;
+            _position.Changed += PositionChanged;
             Path = path;
 
             using (var img = System.Drawing.Image.FromFile(path))
@@ -66,8 +73,9 @@ namespace Kerlib.Drawing
             }
 
             if (_hBitmap == IntPtr.Zero)
-                throw new InvalidOperationException($"Konnte Bild nicht laden: {Path}");
+                throw new InvalidOperationException($"Picture could not be loaded: {Path}");
         }
+
 
         public void Draw(IntPtr hdc)
         {
@@ -78,7 +86,7 @@ namespace Kerlib.Drawing
 
             NativeMethods.BitBlt(
                 hdc,
-                _x, _y, _width, _height,
+                _position.X, _position.Y, _width, _height,
                 hdcMem,
                 0, 0,
                 NativeMethods.Srccopy);

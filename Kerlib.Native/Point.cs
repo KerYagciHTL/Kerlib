@@ -5,34 +5,57 @@ namespace Kerlib.Native;
 [StructLayout(LayoutKind.Sequential)]
 public class Point : IEquatable<Point>
 {
-    public int X { get; set; }
-    public int Y { get; set; }
+        private int _x;
+        private int _y;
 
-    public Point(int x, int y)
-    {
-        X = x;
-        Y = y;
-    }
+        public event EventHandler? Changed;
 
+        public int X
+        {
+            get => _x;
+            set
+            {
+                if (_x == value) return;
+                _x = value;
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public int Y
+        {
+            get => _y;
+            set
+            {
+                if (_y == value) return;
+                _y = value;
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public Point(int x, int y)
+        {
+            _x = x;
+            _y = y;
+        }
     public static Point Empty => new(0, 0);
 
     public static Point FromSystemPoint(System.Drawing.Point point) =>
         new(point.X, point.Y);
 
     public System.Drawing.Point ToSystemPoint() =>
-        new(X, Y);
+        new(_x, _y);
 
     public Point Offset(int dx, int dy) =>
-        new(X + dx, Y + dy);
+        new(_x + dx, _y + dy);
 
     public Point Offset(Point point) =>
-        new(X + point.X, Y + point.Y);
+        new(_x + point.X, _y + point.Y);
 
     public Point Scale(float factor) =>
-        new((int)(X * factor), (int)(Y * factor));
+        new((int)(_x * factor), (int)(_y * factor));
 
     public bool Equals(Point? other) =>
-        other is not null && X == other.X && Y == other.Y;
+        other is not null && _x == other.X && _y == other.Y;
 
     public override bool Equals(object? obj) =>
         obj is Point other && Equals(other);
@@ -57,8 +80,8 @@ public class Point : IEquatable<Point>
 
     public void Deconstruct(out int x, out int y)
     {
-        x = X;
-        y = Y;
+        x = _x;
+        y = _y;
     }
 
     public double DistanceTo(Point other)
