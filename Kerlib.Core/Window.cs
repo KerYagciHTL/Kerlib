@@ -81,6 +81,10 @@ public abstract class Window : IDisposable
         _window.Add(stack);
     }
 
+    public void Remove(IRenderable renderable)
+    {
+        _window.Remove(renderable);
+    }
     public void Close()
     {
         _window.Destroy();

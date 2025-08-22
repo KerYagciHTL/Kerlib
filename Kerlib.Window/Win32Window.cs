@@ -103,6 +103,13 @@ public sealed class Win32Window : IDisposable
             if (drawable is IRenderable renderable) Add(renderable);
     }
 
+    public void Remove(IRenderable drawable)
+    {
+        if (drawable is INotifyRenderableChanged notifyRenderable) notifyRenderable.Changed -= OnNotifyRenderable;
+        if(drawable is IImage image) image.Dispose();
+        _renderStack.Remove(drawable);
+        Invalidate();
+    }
     private void Invalidate()
     {
         if (_hwnd != IntPtr.Zero) NativeMethods.InvalidateRect(_hwnd, IntPtr.Zero, true);

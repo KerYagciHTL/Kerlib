@@ -1,0 +1,3 @@
+coin Image: https://www.google.com/url?sa=i&url=https%3A%2F%2Fpngimg.com%2Fimage%2F36871&psig=AOvVaw22NANpi6eO0e08TIuoNK04&ust=1755953702087000&source=images&cd=vfe&opi=89978449&ved=0CBgQjhxqFwoTCNCYl7-7no8DFQAAAAAdAAAAABAE
+
+puppy Image: https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.redbubble.com%2Fi%2Fsticker%2FKawaii-Pixel-Art-Happy-Brown-Dog-by-OtakuAtWork%2F159882490.EJUG5&psig=AOvVaw1ZU9oiaHY7jHi0nA-sNqz6&ust=1755953795282000&source=images&cd=vfe&opi=89978449&ved=0CBgQjhxqFwoTCJDRhu-7no8DFQAAAAAdAAAAABAE
