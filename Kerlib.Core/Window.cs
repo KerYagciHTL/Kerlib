@@ -63,6 +63,10 @@ public abstract class Window : IDisposable
         _window.Add(stack);
     }
 
+    public void Close()
+    {
+        _window.Destroy();
+    }
     protected virtual void Dispose(bool disposing)
     {
         if (disposing)

@@ -148,6 +148,8 @@ public sealed class Key
         UnknownKeys[virtualCode] = key;
         return key;
     }
+    public static bool operator ==(Key? a, Key? b) => a?.VirtualCode == b?.VirtualCode;
+    public static bool operator !=(Key? a, Key? b) => !(a == b);
     public override bool Equals(object? obj) => obj is Key other && VirtualCode == other.VirtualCode;
     public override int GetHashCode() => VirtualCode;
     public override string ToString() => Name;

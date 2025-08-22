@@ -129,12 +129,10 @@ public sealed class Win32Window : IDisposable
 
     public void Destroy()
     {
-        if (_hwnd != IntPtr.Zero && !_isDestroyed)
-        {
-            NativeMethods.DestroyWindow(_hwnd);
-            _isDestroyed = true;
-            _hwnd = IntPtr.Zero;
-        }
+        if (_hwnd == IntPtr.Zero || _isDestroyed) return;
+        NativeMethods.DestroyWindow(_hwnd);
+        _isDestroyed = true;
+        _hwnd = IntPtr.Zero;
     }
 
     public void Add(IRenderable drawable)
