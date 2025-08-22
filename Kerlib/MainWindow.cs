@@ -27,22 +27,21 @@ public class MainWindow : Core.Window
 
         if (key == A)
         {
-            _image.Position = _image.Position with { X = _image.Position.X - 5 };
+            _image.Position.X -= 5;
         }
         if (key == D)
         {
-            _image.Position = _image.Position with { X = _image.Position.X + 5 };
+            _image.Position.X += 5;
         }
 
         if (key == W)
         {
-            _image.Position = _image.Position with { Y = _image.Position.Y - 5 };
+            _image.Position.Y -= 5;
         }
         
         if (key == S)
         {
-            //small problem. This is just weird. _image.Position.Y += 5; doesn't work but it would be 10x better
-            _image.Position = _image.Position with { Y = _image.Position.Y + 5 };
+            _image.Position.Y += 5;
         }
     }
 }
