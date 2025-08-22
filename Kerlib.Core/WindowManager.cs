@@ -15,7 +15,7 @@ public static class WindowManager
         }
         
         _currentWindow = window;
-        _currentWindow.OnClose += OnWindowClose;
+        _currentWindow.Closed += OnWindowClose;
         _currentWindow.Show();
     }
     
@@ -23,7 +23,7 @@ public static class WindowManager
     {
         if (_currentWindow != null)
         {
-            _currentWindow.OnClose -= OnWindowClose;
+            _currentWindow.Closed -= OnWindowClose;
 
             if (closePrevious)
             {
@@ -33,7 +33,7 @@ public static class WindowManager
         }
 
         _currentWindow = window;
-        _currentWindow.OnClose += OnWindowClose;
+        _currentWindow.Closed += OnWindowClose;
         _currentWindow.Show();
     }
 

@@ -10,8 +10,8 @@ public class MainWindow : Core.Window
     public MainWindow() 
         : base("Main Window", 800, 600)
     {
-        OnResize += OnWindowResize;
-        OnClose += OnWindowClose;
+        Resized += OnWindowResize;
+        Closed += OnWindowClose;
 
         BackgroundColor = Color.Green;
         
@@ -43,7 +43,7 @@ public class MainWindow : Core.Window
 
         _button.Clicked -= OnButtonClick;
 
-        OnResize -= OnWindowResize;
-        OnClose -= OnWindowClose;
+        Resized -= OnWindowResize;
+        Closed -= OnWindowClose;
     }
 }

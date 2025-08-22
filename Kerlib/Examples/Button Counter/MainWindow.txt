@@ -11,7 +11,7 @@ public class MainWindow : Core.Window
     private int _clickCount;
     public MainWindow() : base("Hello World", 800, 600)
     {
-        OnClose += OnWindowClose;
+        Closed += OnWindowClose;
         
         var renderStack = new RenderStack();
         
@@ -33,6 +33,6 @@ public class MainWindow : Core.Window
     private void OnWindowClose()
     {
         _button.Clicked -= OnButtonClicked;
-        OnClose -= OnWindowClose;
+        Closed -= OnWindowClose;
     }
 }

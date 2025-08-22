@@ -11,8 +11,8 @@ public class SettingsWindow : Core.Window
     public SettingsWindow() 
         : base("Settings Window", 600, 400)
     {
-        OnResize += OnWindowResize;
-        OnClose += OnWindowClose;
+        Resized += OnWindowResize;
+        Closed += OnWindowClose;
         BackgroundColor = Color.Blue;
 
         _button = new Button(new Point(100, 100), 200, 50, "Back to Main");
@@ -44,7 +44,7 @@ public class SettingsWindow : Core.Window
 
         _button.Clicked -= OnButtonClick;
 
-        OnResize -= OnWindowResize;
-        OnClose -= OnWindowClose;
+        Resized -= OnWindowResize;
+        Closed -= OnWindowClose;
     }
 }

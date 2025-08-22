@@ -24,8 +24,8 @@ public sealed class Win32Window : IDisposable
     private readonly RenderStack _renderStack = new();
     private static readonly Dictionary<string, bool> RegisteredClasses = new();
 
-    public event Action? OnResize;
-    public event Action? OnClose;
+    public event Action? Resized;
+    public event Action? Closed;
 
     public Win32Window(string title, int width, int height, Color? bgColor = null)
     {
@@ -181,11 +181,11 @@ public sealed class Win32Window : IDisposable
                         _height = rect.bottom - rect.top;
                     }
                 }
-                OnResize?.Invoke();
+                Resized?.Invoke();
                 return IntPtr.Zero;
 
             case NativeMethods.WmDestroy:
-                OnClose?.Invoke();
+                Closed?.Invoke();
                 ClearEvents();
                 _isDestroyed = true;
                 _hwnd = IntPtr.Zero;
@@ -284,8 +284,8 @@ public sealed class Win32Window : IDisposable
     }
     private void ClearEvents()
     {
-        OnResize = null;
-        OnClose = null;
+        Resized = null;
+        Closed = null;
         
         CleanRenderStack();
     }

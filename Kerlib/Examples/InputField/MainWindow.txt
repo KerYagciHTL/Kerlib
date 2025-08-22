@@ -10,9 +10,10 @@ public class MainWindow : Core.Window
     private readonly InputField _inputField;
     private readonly Button _submitButton;
     private readonly Text _wroteDownText;
+    
     public MainWindow() : base("MainWindow", 800, 600)
     {
-        OnClose += OnWindowClose;
+        Closed += OnWindowClose;
         var stack = new RenderStack();
         
         _inputField = new InputField(new Point(300, 200), 200, 30);
@@ -46,6 +47,6 @@ public class MainWindow : Core.Window
     {
         _inputField.TextChanged -= OnInputFieldTextChanged;
         _submitButton.Clicked -= OnSubmitButtonClicked;
-        OnClose -= OnWindowClose;
+        Closed -= OnWindowClose;
     }
 }

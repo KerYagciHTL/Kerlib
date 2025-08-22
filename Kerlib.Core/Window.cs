@@ -23,16 +23,16 @@ public abstract class Window : IDisposable
     private Color _backgroundColor = Color.White;
     
     private readonly Win32Window _window;
-    public event Action? OnResize
+    public event Action? Resized
     {
-        add => _window.OnResize += value;
-        remove => _window.OnResize -= value;
+        add => _window.Resized += value;
+        remove => _window.Resized -= value;
     }
 
-    public event Action? OnClose
+    public event Action? Closed
     {
-        add => _window.OnClose += value;
-        remove => _window.OnClose -= value;
+        add => _window.Closed += value;
+        remove => _window.Closed -= value;
     }
 
     protected Window(string title, int width, int height)
