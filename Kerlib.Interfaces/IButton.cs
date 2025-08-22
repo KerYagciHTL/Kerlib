@@ -1,6 +1,6 @@
 ﻿namespace Kerlib.Interfaces
 {
-    public interface IButton : IRenderable
+    public interface IButton : IRenderable, INotifyRenderableChanged
     {
         string Text { get; set; }
         bool IsHovered { get; }

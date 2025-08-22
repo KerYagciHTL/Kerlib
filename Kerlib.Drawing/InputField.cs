@@ -1,155 +1,314 @@
-﻿using Kerlib.Interfaces;
+﻿using System.Text;
+using Kerlib.Interfaces;
 using Kerlib.Native;
 
-namespace Kerlib.Drawing
+namespace Kerlib.Drawing;
+
+public sealed class InputField : IInputField, IDisposable
 {
-    public class InputField : IInputField
+    private Point _position;
+    private int _width, _height;
+    private bool _hovered;
+    private bool _focused;
+
+    private readonly StringBuilder _textBuilder = new(24);
+    private string? _cachedText;
+    private int _cursorPos;
+
+    private int _cachedCursorXOffset;
+    private bool _cursorXDirty = true;
+
+    private DateTime _lastBlink = DateTime.Now;
+    private bool _cursorVisible = true;
+    private bool _disposed;
+
+    private Color _backgroundNormal;
+    private Color _backgroundHover;
+    private Color _backgroundFocused;
+    private Color _foreground;
+
+    private uint BgNormal => NativeMethods.Rgb(_backgroundNormal);
+    private uint BgHover => NativeMethods.Rgb(_backgroundHover);
+    private uint BgFocused => NativeMethods.Rgb(_backgroundFocused);
+    private uint Fg => NativeMethods.Rgb(_foreground);
+
+    public event EventHandler? Changed;
+    public event EventHandler? TextChanged;
+    public event EventHandler? FocusGained;
+    public event EventHandler? FocusLost;
+
+    public InputField(Point pos, int width, int height)
     {
-        private readonly int _x, _y, _width, _height;
-        private bool _hovered;
-        private bool _focused;
-        private string _text = "";
-        private int _cursorPos = 0;
-        private DateTime _lastBlink = DateTime.Now;
-        private bool _cursorVisible = true;
+        _position = pos ?? throw new ArgumentNullException(nameof(pos));
+        _position.Changed += OnPositionChanged;
+        _width = width;
+        _height = height;
 
-        private uint BgNormal => NativeMethods.Rgb(BackgroundNormal);
-        private uint BgHover => NativeMethods.Rgb(BackgroundHover);
-        private uint BgFocused => NativeMethods.Rgb(BackgroundFocused);
-        private uint Fg => NativeMethods.Rgb(Foreground);
+        _backgroundNormal = new Color(255, 255, 255);
+        _backgroundHover = new Color(230, 230, 230);
+        _backgroundFocused = new Color(200, 200, 255);
+        _foreground = new Color(0, 0, 0);
+    }
 
-        public Point Position => new(_x, _y);
-        public Color BackgroundNormal { get; set; }
-        public Color BackgroundHover { get; set; }
-        public Color BackgroundFocused { get; set; }
-        public Color Foreground { get; set; }
-        public string Text
+    public Point Position
+    {
+        get => _position;
+        set
         {
-            get => _text;
-            set
+            if (ReferenceEquals(_position, value)) return;
+            _position.Changed -= OnPositionChanged;
+            _position = value ?? throw new ArgumentNullException(nameof(value));
+            _position.Changed += OnPositionChanged;
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public int Width
+    {
+        get => _width;
+        set
+        {
+            if (_width == value) return;
+            _width = value;
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public int Height
+    {
+        get => _height;
+        set
+        {
+            if (_height == value) return;
+            _height = value;
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public Color BackgroundNormal
+    {
+        get => _backgroundNormal;
+        set
+        {
+            if (_backgroundNormal == value) return;
+            _backgroundNormal = value;
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public Color BackgroundHover
+    {
+        get => _backgroundHover;
+        set
+        {
+            if (_backgroundHover == value) return;
+            _backgroundHover = value;
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public Color BackgroundFocused
+    {
+        get => _backgroundFocused;
+        set
+        {
+            if (_backgroundFocused == value) return;
+            _backgroundFocused = value;
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public Color Foreground
+    {
+        get => _foreground;
+        set
+        {
+            if (_foreground == value) return;
+            _foreground = value;
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public string Text
+    {
+        get => _cachedText ??= _textBuilder.ToString();
+        set
+        {
+            if (_cachedText == value)
             {
-                _text = value;
-                _cursorPos = Math.Min(_cursorPos, _text.Length);
+                _cursorPos = Math.Min(_cursorPos, _cachedText!.Length);
+                return;
             }
+
+            _textBuilder.Clear();
+            _textBuilder.Append(value);
+            _cachedText = value;
+            _cursorPos = Math.Min(_cursorPos, _textBuilder.Length);
+
+            _cursorXDirty = true;
+
+            TextChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public bool IsFocused => _focused;
+    public void Draw(IntPtr hdc)
+    {
+        if (_disposed) return;
+
+        var bgColor = _focused ? BgFocused : _hovered ? BgHover : BgNormal;
+
+        var brush = GdiCache.GetOrCreateBrush(bgColor);
+        var oldBrush = NativeMethods.SelectObject(hdc, brush);
+
+        var penColor = NativeMethods.Rgb(0, 0, 0);
+        var pen = GdiCache.GetOrCreatePen(1, penColor);
+        var oldPen = NativeMethods.SelectObject(hdc, pen);
+
+        NativeMethods.Rectangle(hdc, _position.X, _position.Y, _position.X + _width, _position.Y + _height);
+
+        NativeMethods.SelectObject(hdc, oldBrush);
+        NativeMethods.SelectObject(hdc, oldPen);
+
+        var rect = new NativeMethods.Rect
+        {
+            left = _position.X + 4,
+            top = _position.Y,
+            right = _position.X + _width - 4,
+            bottom = _position.Y + _height
+        };
+
+        var drawText = _cachedText ??= _textBuilder.ToString();
+
+        NativeMethods.SetTextColor(hdc, Fg);
+        NativeMethods.SetBkMode(hdc, 1); // TRANSPARENT
+
+        NativeMethods.DrawText(hdc, drawText, drawText.Length, ref rect,
+            NativeMethods.DtLeft | NativeMethods.DtVcenter | NativeMethods.DtSingleline);
+
+        if (_focused && (DateTime.Now - _lastBlink).TotalMilliseconds > 500)
+        {
+            _cursorVisible = !_cursorVisible;
+            _lastBlink = DateTime.Now;
+            Changed?.Invoke(this, EventArgs.Empty);
         }
 
-        public bool IsFocused => _focused;
+        if (!_focused || !_cursorVisible) return;
 
-        public event EventHandler? TextChanged;
-        public event EventHandler? FocusGained;
-        public event EventHandler? FocusLost;
-
-        public InputField(Point pos, int width, int height)
+        if (_cursorXDirty)
         {
-            _x = pos.X;
-            _y = pos.Y;
-            _width = width;
-            _height = height;
-
-            BackgroundNormal = new Color(255, 255, 255);
-            BackgroundHover = new Color(230, 230, 230);
-            BackgroundFocused = new Color(200, 200, 255);
-            Foreground = new Color(0, 0, 0);
+            _cachedCursorXOffset = GetTextWidthPrefix(hdc, drawText, _cursorPos);
+            _cursorXDirty = false;
         }
 
-        public void Draw(IntPtr hdc)
+        var cursorX = _position.X + 4 + _cachedCursorXOffset;
+        NativeMethods.MoveToEx(hdc, cursorX, _position.Y + 2, IntPtr.Zero);
+        NativeMethods.LineTo(hdc, cursorX, _position.Y + _height - 2);
+    }
+
+    public bool HandleMouseMove(int x, int y)
+    {
+        var inside = Contains(x, y);
+        switch (inside)
         {
-            var bgColor = _focused ? BgFocused : _hovered ? BgHover : BgNormal;
-            var brush = NativeMethods.CreateSolidBrush(bgColor);
-            var oldBrush = NativeMethods.SelectObject(hdc, brush);
-
-            var pen = NativeMethods.CreatePen(0, 1, NativeMethods.Rgb(0, 0, 0));
-            var oldPen = NativeMethods.SelectObject(hdc, pen);
-
-            NativeMethods.Rectangle(hdc, _x, _y, _x + _width, _y + _height);
-
-            NativeMethods.SelectObject(hdc, oldBrush);
-            NativeMethods.DeleteObject(brush);
-            NativeMethods.SelectObject(hdc, oldPen);
-            NativeMethods.DeleteObject(pen);
-
-            var rect = new NativeMethods.Rect
-            {
-                left = _x + 4,
-                top = _y,
-                right = _x + _width - 4,
-                bottom = _y + _height
-            };
-
-            NativeMethods.SetTextColor(hdc, Fg);
-            NativeMethods.SetBkMode(hdc, 1); // TRANSPARENT
-            NativeMethods.DrawText(hdc, _text, _text.Length, ref rect,
-                NativeMethods.DtLeft | NativeMethods.DtVcenter | NativeMethods.DtSingleline);
-
-            if (_focused && (DateTime.Now - _lastBlink).TotalMilliseconds > 500)
-            {
-                _cursorVisible = !_cursorVisible;
-                _lastBlink = DateTime.Now;
-            }
-
-            if (!_focused || !_cursorVisible) return;
-            var cursorX = _x + 4 + NativeMethods.GetTextWidth(hdc, _text.Substring(0, _cursorPos));
-            NativeMethods.MoveToEx(hdc, cursorX, _y + 2, IntPtr.Zero);
-            NativeMethods.LineTo(hdc, cursorX, _y + _height - 2);
+            case true when !_hovered:
+                _hovered = true;
+                Changed?.Invoke(this, EventArgs.Empty);
+                return true;
+            case false when _hovered:
+                _hovered = false;
+                Changed?.Invoke(this, EventArgs.Empty);
+                return true;
+            default:
+                return false;
         }
+    }
 
-        public bool HandleMouseMove(int x, int y)
+    public void HandleMouseDown(int x, int y)
+    {
+        var inside = Contains(x, y);
+        if (inside)
         {
-            var inside = Contains(x, y);
-            switch (inside)
-            {
-                case true when !_hovered:
-                    _hovered = true;
-                    return true;
-                case false when _hovered:
-                    _hovered = false;
-                    return true;
-                default:
-                    return false;
-            }
+            if (_focused) return;
+            _focused = true;
+            FocusGained?.Invoke(this, EventArgs.Empty);
         }
-
-        public void HandleMouseDown(int x, int y)
-        {
-            var inside = Contains(x, y);
-            if (inside)
-            {
-                if (!_focused)
-                {
-                    _focused = true;
-                    FocusGained?.Invoke(this, EventArgs.Empty);
-                }
-            }
-            else
-            {
-                if (!_focused) return;
-                _focused = false;
-                FocusLost?.Invoke(this, EventArgs.Empty);
-            }
-        }
-
-        public void HandleKeyPress(char key)
+        else
         {
             if (!_focused) return;
+            _focused = false;
+            FocusLost?.Invoke(this, EventArgs.Empty);
+        }
+    }
 
-            if (key == '\b') // Backspace
-            {
-                if (_cursorPos > 0)
-                {
-                    _text = _text.Remove(_cursorPos - 1, 1);
-                    _cursorPos--;
-                    TextChanged?.Invoke(this, EventArgs.Empty);
-                }
-            }
-            else
-            {
-                _text = _text.Insert(_cursorPos, key.ToString());
-                _cursorPos++;
-                TextChanged?.Invoke(this, EventArgs.Empty);
-            }
+    public void HandleKeyPress(char key)
+    {
+        if (!_focused) return;
+
+        if (key == '\b')
+        {
+            Backspace();
+        }
+        else
+        {
+            InsertChar(key);
+        }
+    }
+    private void InsertChar(char c)
+    {
+        _textBuilder.Insert(_cursorPos, c);
+        _cursorPos++;
+        _cachedText = null;
+        _cursorXDirty = true;
+        TextChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void Backspace()
+    {
+        if (_cursorPos <= 0) return;
+        _textBuilder.Remove(_cursorPos - 1, 1);
+        _cursorPos--;
+        _cachedText = null;
+        _cursorXDirty = true;
+        TextChanged?.Invoke(this, EventArgs.Empty);
+    }
+    private static int GetTextWidthPrefix(IntPtr hdc, string text, int length)
+    {
+        if (length <= 0) return 0;
+        if (length > text.Length) length = text.Length;
+
+        var substring = text.Substring(0, length);
+        NativeMethods.GetTextExtentPoint32(hdc, substring, substring.Length, out var size);
+        return size.cx;
+    }
+
+    private bool Contains(int x, int y) =>
+        x >= _position.X && x <= _position.X + _width && y >= _position.Y && y <= _position.Y + _height;
+
+    private void OnPositionChanged(object? sender, EventArgs e)
+    {
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (_disposed) return;
+        if (disposing)
+        {
+            _position.Changed -= OnPositionChanged;
+
+            Changed = null;
+            TextChanged = null;
+            FocusGained = null;
+            FocusLost = null;
         }
 
-        private bool Contains(int x, int y) =>
-            x >= _x && x <= _x + _width && y >= _y && y <= _y + _height;
+        _disposed = true;
     }
 }

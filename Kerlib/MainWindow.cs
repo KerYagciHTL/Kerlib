@@ -11,13 +11,13 @@ public class MainWindow : Core.Window
     {
         /*var text = new Text(new Point(350, 250), "Hello, Kerlib!", Color.Black);
         Add(text);*/
-        
+
         KeyDown += OnKeyDown;
-        
+
         _image = new Image(new Point(375, 275), "Puppy.png", 50, 50);
         Add(_image);
     }
-    
+
     private void OnKeyDown(Key key)
     {
         if (key == Escape)
@@ -38,7 +38,7 @@ public class MainWindow : Core.Window
         {
             _image.Position.Y -= 5;
         }
-        
+
         if (key == S)
         {
             _image.Position.Y += 5;

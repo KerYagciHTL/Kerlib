@@ -1,7 +1,7 @@
 ﻿using System;
 namespace Kerlib.Interfaces
 {
-    public interface IInputField : IRenderable
+    public interface IInputField : IRenderable, INotifyRenderableChanged
     {
         string Text { get; set; }
         bool IsFocused { get; }

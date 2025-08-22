@@ -44,6 +44,15 @@ public readonly struct Color : IEquatable<Color>
     public static bool operator !=(Color left, Color right) => 
         !left.Equals(right);
 
+    public static Color FromRgb(uint color)
+    {
+        return new Color(
+            (byte)(color & 0xFF),         
+            (byte)((color >> 8) & 0xFF),  
+            (byte)((color >> 16) & 0xFF) 
+        );
+    }
+
     public override string ToString() => 
         $"#{(R << 16) | (G << 8) | B:X6}";
 
