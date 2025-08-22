@@ -19,12 +19,11 @@ public static class NativeMethods
     public const int CsHredraw = 0x0002;
     public const int CsVredraw = 0x0001;
 
-    public const int ColorWindow = 5;
-    
     public const uint WmMouseMove   = 0x0200;
     public const uint WmLButtonDown = 0x0201;
     public const uint WmLButtonUp   = 0x0202;
     public const uint WmKeyPress = 0x0102;
+    public const uint WmKeyDown = 0x0100;
     
     public const uint DtCenter = 0x00000001;
     public const uint DtVcenter = 0x00000004;

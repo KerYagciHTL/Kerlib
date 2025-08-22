@@ -26,6 +26,7 @@ public sealed class Win32Window : IDisposable
 
     public event Action? Resized;
     public event Action? Closed;
+    public event Action<Key>? KeyDown;
 
     public Win32Window(string title, int width, int height, Color? bgColor = null)
     {
@@ -172,6 +173,11 @@ public sealed class Win32Window : IDisposable
                 OnPaint(hwnd);
                 return IntPtr.Zero;
 
+            case NativeMethods.WmKeyDown:
+                var key = Key.FromVirtualCode((int)wParam);
+                KeyDown?.Invoke(key);
+                return IntPtr.Zero;
+            
             case NativeMethods.WmSize:
                 if (_hwnd != IntPtr.Zero)
                 {

@@ -34,6 +34,12 @@ public abstract class Window : IDisposable
         add => _window.Closed += value;
         remove => _window.Closed -= value;
     }
+    
+    public event Action<Key>? KeyDown
+    {
+        add => _window.KeyDown += value;
+        remove => _window.KeyDown -= value;
+    }
 
     protected Window(string title, int width, int height)
     {
