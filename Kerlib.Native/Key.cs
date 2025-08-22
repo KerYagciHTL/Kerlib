@@ -1,4 +1,6 @@
-﻿public class Key
+﻿namespace Kerlib.Native;
+
+public sealed class Key
 {
     public int VirtualCode { get; }
     public string Name { get; }
@@ -99,53 +101,54 @@
     public static readonly Key Decimal = new(0x6E, "Decimal");
     public static readonly Key Divide = new(0x6F, "Divide");
 
-    public static readonly Key Oem1 = new(0xBA, "OEM1"); // ;: key
-    public static readonly Key OemPlus = new(0xBB, "OEMPlus"); // += key
-    public static readonly Key OemComma = new(0xBC, "OEMComma"); // ,< key
-    public static readonly Key OemMinus = new(0xBD, "OEMMinus"); // -_ key
-    public static readonly Key OemPeriod = new(0xBE, "OEMPeriod"); // .> key
-    public static readonly Key Oem2 = new(0xBF, "OEM2"); // /? key
-    public static readonly Key Oem3 = new(0xC0, "OEM3"); // `~ key
-    public static readonly Key Oem4 = new(0xDB, "OEM4"); // [{ key
-    public static readonly Key Oem5 = new(0xDC, "OEM5"); // \| key
-    public static readonly Key Oem6 = new(0xDD, "OEM6"); // ]} key
-    public static readonly Key Oem7 = new(0xDE, "OEM7"); // '" key
+    public static readonly Key Oem1 = new(0xBA, "OEM1"); // ;:
+    public static readonly Key OemPlus = new(0xBB, "OEMPlus"); // +=
+    public static readonly Key OemComma = new(0xBC, "OEMComma"); // ,<
+    public static readonly Key OemMinus = new(0xBD, "OEMMinus"); // -_
+    public static readonly Key OemPeriod = new(0xBE, "OEMPeriod"); // .>
+    public static readonly Key Oem2 = new(0xBF, "OEM2"); // /?
+    public static readonly Key Oem3 = new(0xC0, "OEM3"); // `~
+    public static readonly Key Oem4 = new(0xDB, "OEM4"); // [{
+    public static readonly Key Oem5 = new(0xDC, "OEM5"); // \|
+    public static readonly Key Oem6 = new(0xDD, "OEM6"); // ]}
+    public static readonly Key Oem7 = new(0xDE, "OEM7"); // '"
 
-    private static readonly Dictionary<int, Key> KeyMap;
+    private static readonly Key?[] KeyMap = new Key?[256];
+    private static readonly Dictionary<int, Key> UnknownKeys = new();
 
     static Key()
     {
-        KeyMap = new Dictionary<int, Key>();
-        
-        var fields = typeof(Key).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-            .Where(f => f.FieldType == typeof(Key));
-        
-        foreach (var field in fields)
+        Register(A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+                 D0, D1, D2, D3, D4, D5, D6, D7, D8, D9,
+                 F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+                 Escape, Space, Enter, Backspace, Tab, Shift, Control, Alt, CapsLock, Windows, Menu,
+                 Left, Up, Right, Down, Home, End, PageUp, PageDown, Insert, Delete,
+                 NumPad0, NumPad1, NumPad2, NumPad3, NumPad4, NumPad5, NumPad6, NumPad7, NumPad8, NumPad9,
+                 Multiply, Add, Subtract, Decimal, Divide,
+                 Oem1, OemPlus, OemComma, OemMinus, OemPeriod, Oem2, Oem3, Oem4, Oem5, Oem6, Oem7);
+    }
+
+    private static void Register(params Key[] keys)
+    {
+        foreach (var key in keys)
         {
-            var key = (Key)field.GetValue(null)!;
-            KeyMap[key.VirtualCode] = key;
+            if (key.VirtualCode >= 0 && key.VirtualCode < KeyMap.Length)
+                KeyMap[key.VirtualCode] = key;
         }
     }
 
     public static Key FromVirtualCode(int virtualCode)
     {
-        return KeyMap.TryGetValue(virtualCode, out var key) 
-            ? key 
-            : new Key(virtualCode, $"Unknown_{virtualCode:X}");
-    }
+        if (virtualCode >= 0 && virtualCode < KeyMap.Length && KeyMap[virtualCode] != null)
+            return KeyMap[virtualCode]!;
 
-    public override bool Equals(object? obj)
-    {
-        return obj is Key other && VirtualCode == other.VirtualCode;
+        // cache
+        if (UnknownKeys.TryGetValue(virtualCode, out var key)) return key;
+        key = new Key(virtualCode, $"Unknown_{virtualCode:X}");
+        UnknownKeys[virtualCode] = key;
+        return key;
     }
-
-    public override int GetHashCode()
-    {
-        return VirtualCode;
-    }
-
-    public override string ToString()
-    {
-        return Name;
-    }
+    public override bool Equals(object? obj) => obj is Key other && VirtualCode == other.VirtualCode;
+    public override int GetHashCode() => VirtualCode;
+    public override string ToString() => Name;
 }
