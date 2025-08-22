@@ -85,6 +85,11 @@ public abstract class Window : IDisposable
     {
         _window.Remove(renderable);
     }
+
+    public void Switch(Window other, bool closePrevious = true)
+    {
+        WindowManager.SwitchWindow(other, closePrevious);
+    }
     public void Close()
     {
         _window.Destroy();

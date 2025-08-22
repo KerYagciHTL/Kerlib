@@ -31,7 +31,7 @@ public class MainWindow : Core.Window
     private void OnButtonClick(object? sender, EventArgs e)
     {
         Console.WriteLine("Switching to SettingsWindow...");
-        WindowManager.SwitchWindow(new SettingsWindow());
+        Switch(new SettingsWindow());
     }
     private void OnWindowResize()
     {

@@ -32,7 +32,7 @@ public class SettingsWindow : Core.Window
     private void OnButtonClick(object? sender, EventArgs e)
     {
         Console.WriteLine("Switching to MainWindow...");
-        WindowManager.SwitchWindow(new MainWindow());
+        Switch(new MainWindow());
     }
     private void OnWindowResize()
     {
