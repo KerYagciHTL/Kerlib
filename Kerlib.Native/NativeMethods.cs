@@ -4,8 +4,6 @@ namespace Kerlib.Native;
 
 public static class NativeMethods
 {
-    public const int ImageBitmap = 0;
-    public const int LrLoadfromfile = 0x0010;
     public const int Srccopy = 0x00CC0020;
     
     public const int WsOverlappedwindow = 0x00CF0000;
@@ -24,14 +22,18 @@ public static class NativeMethods
     public const uint WmLButtonUp   = 0x0202;
     public const uint WmKeyPress = 0x0102;
     public const uint WmKeyDown = 0x0100;
-    
+    public const uint WmKeyUp     = 0x0101;
+
     public const uint DtCenter = 0x00000001;
     public const uint DtVcenter = 0x00000004;
     public const uint DtSingleline = 0x00000020;
     public const int DtLeft = 0x0000000;
     public const int DtRight = 0x00000002;
     
+    
     public const int GclpHbrbackground = -10;
+    public const uint WmTimer = 0x0113;
+    public const uint WmErasebkgnd = 0x0014;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct Wndclassexw
@@ -108,6 +110,12 @@ public static class NativeMethods
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern ushort RegisterClassExW(in Wndclassexw lpwcx);
+    
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern uint SetTimer(IntPtr hWnd, uint nIDEvent, uint uElapse, IntPtr lpTimerFunc);
+    
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool KillTimer(IntPtr hWnd, UIntPtr uIDEvent);
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern IntPtr CreateWindowExW(
@@ -171,6 +179,9 @@ public static class NativeMethods
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool AdjustWindowRectEx(ref Rect lpRect, uint dwStyle, bool bMenu, uint dwExStyle);
     
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern int FillRect(IntPtr hWnd, ref Rect lprc, IntPtr hbr);
+    
     [DllImport("user32.dll", EntryPoint = "SetClassLongPtrW", SetLastError = true)]
     public static extern IntPtr SetClassLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
@@ -185,6 +196,9 @@ public static class NativeMethods
     
     [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
     public static extern bool TextOutW(IntPtr hdc, int x, int y, string lpString, int c);
+    
+    [DllImport("gdi32.dll", SetLastError = true)]
+    public static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int cx, int cy);
 
     [DllImport("gdi32.dll")]
     public static extern IntPtr CreateFont(
@@ -238,15 +252,6 @@ public static class NativeMethods
     public static extern bool BitBlt(
         IntPtr hdcDest, int nXDest, int nYDest, int nWidth, int nHeight,
         IntPtr hdcSrc, int nXSrc, int nYSrc, int dwRop);
-    
-    public static int GetTextWidth(IntPtr hdc, string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return 0;
-
-        GetTextExtentPoint32(hdc, text, text.Length, out Size size);
-        return size.cx;
-    }
     public static uint Rgb(int r, int g, int b) => (uint)(r | (g << 8) | (b << 16));
     public static uint Rgb(Color color) => Rgb(color.R, color.G, color.B);
 }

@@ -7,41 +7,35 @@ namespace Kerlib;
 public class MainWindow : Core.Window
 {
     private readonly Image _image;
+    private readonly Image _coin;
     public MainWindow() : base("MainWindow", 800, 600)
     {
         /*var text = new Text(new Point(350, 250), "Hello, Kerlib!", Color.Black);
         Add(text);*/
 
-        KeyDown += OnKeyDown;
+         KeysDown += OnKeysDown;
+         Tick += OnTick;
 
-        _image = new Image(new Point(375, 275), "Puppy.png", 50, 50);
+        _image = new Image(new Point(375, 275), "Assets/puppy.png", 50, 50);
+        _coin = new Image(new Point(100, 100), "Assets/coin.png", 32, 32);
+        
         Add(_image);
     }
 
-    private void OnKeyDown(Key key)
+    private void OnKeysDown(IReadOnlyCollection<Key> keys)
     {
-        if (key == Escape)
-        {
-            Close();
-        }
-
-        if (key == A)
-        {
+        if (keys.Contains(A))
             _image.Position.X -= 5;
-        }
-        if (key == D)
-        {
+        if (keys.Contains(D))
             _image.Position.X += 5;
-        }
-
-        if (key == W)
-        {
+        if (keys.Contains(W))
             _image.Position.Y -= 5;
-        }
-
-        if (key == S)
-        {
+        if (keys.Contains(S))
             _image.Position.Y += 5;
-        }
+    }
+    
+    private void OnTick()
+    {
+        Console.WriteLine(_image.Position.ToString());
     }
 }

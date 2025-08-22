@@ -40,6 +40,24 @@ public abstract class Window : IDisposable
         add => _window.KeyDown += value;
         remove => _window.KeyDown -= value;
     }
+    
+    public event Action<Key>? KeyUp
+    {
+        add => _window.KeyUp += value;
+        remove => _window.KeyUp -= value;
+    }
+    
+    public event Action? Tick
+    {
+        add => _window.Tick += value;
+        remove => _window.Tick -= value;
+    }
+
+    public event Action<IReadOnlyCollection<Key>>? KeysDown
+    {
+        add => _window.KeysDown += value;
+        remove => _window.KeysDown -= value;
+    }
 
     protected Window(string title, int width, int height)
     {

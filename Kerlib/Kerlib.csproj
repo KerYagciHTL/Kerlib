@@ -7,7 +7,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Puppy.png">
+      <None Update="Assets\puppy.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
