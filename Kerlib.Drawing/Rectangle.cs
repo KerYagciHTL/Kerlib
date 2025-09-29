@@ -1,7 +1,7 @@
 ﻿using Kerlib.Interfaces;
 using Kerlib.Native;
 
-public class Rectangle : IRenderable
+public sealed class Rectangle : IRenderable
 {
     private readonly int _left, _top, _right, _bottom;
     private readonly uint _color;
