@@ -8,15 +8,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="867bcb67-7c68-4be1-963b-6528f419d446" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Kerlib.Core/WindowManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Kerlib.Core/WindowManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Kerlib.Drawing/Button.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Kerlib.Drawing/Button.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Kerlib.Drawing/InputField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Kerlib.Drawing/InputField.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Kerlib.Drawing/Line.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Kerlib.Drawing/Line.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Kerlib.Drawing/Rectangle.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Kerlib.Drawing/Rectangle.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Kerlib.Native/FontCache.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Kerlib.Native/FontCache.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Kerlib.Native/GdiCache.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Kerlib.Native/GdiCache.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Kerlib/SettingsWindow.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Kerlib.Window/RenderStack.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Kerlib.Window/RenderStack.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Kerlib/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Kerlib/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Kerlib.Window/Win32Window.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Kerlib.Window/Win32Window.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Kerlib/MainWindow.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Kerlib/MainWindow.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,7 +82,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1759155108978</updated>
-      <workItem from="1759155110872" duration="1723000" />
+      <workItem from="1759155110872" duration="2596000" />
     </task>
     <task id="LOCAL-00001" summary="Add PlatformGuard to enforce Windows version requirements">
       <option name="closed" value="true" />
