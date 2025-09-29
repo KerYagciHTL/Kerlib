@@ -210,8 +210,10 @@ public sealed class Win32Window : IDisposable
             _hBackgroundBrush = IntPtr.Zero;
         }
 
-        _hBackgroundBrush = GdiCache.GetOrCreateBrush(NativeMethods.Rgb(color));
-        NativeMethods.SetClassLongPtr(_hwnd, NativeMethods.GclpHbrbackground, _hBackgroundBrush);
+        // Eigener Brush statt GdiCache, um Freigabe-Konflikte zu vermeiden
+        _hBackgroundBrush = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(color));
+        if (_hwnd != IntPtr.Zero)
+            NativeMethods.SetClassLongPtr(_hwnd, NativeMethods.GclpHbrbackground, _hBackgroundBrush);
         Invalidate();
     }
 
