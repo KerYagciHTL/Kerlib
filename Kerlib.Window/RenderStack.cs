@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using Kerlib.Interfaces;
+using System.Linq;
 
 namespace Kerlib.Window;
 
@@ -37,4 +38,10 @@ public sealed class RenderStack : IEnumerable<IRenderable>
 
     public IEnumerator<IRenderable> GetEnumerator() => _items.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public T[] SnapshotOfType<T>() where T : class
+    {
+        // Snapshot für sichere Iteration bei gleichzeitiger Modifikation
+        return _items.OfType<T>().ToArray();
+    }
 }

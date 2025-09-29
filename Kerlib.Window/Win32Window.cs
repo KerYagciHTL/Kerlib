@@ -166,24 +166,36 @@ public sealed class Win32Window : IDisposable
             case NativeMethods.WmMouseMove:
             {
                 var needsInvalidate = false;
-                foreach (var r in _renderStack.OfType<IButton>()) if (r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam))) needsInvalidate = true;
-                foreach (var r in _renderStack.OfType<IInputField>()) if (r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam))) needsInvalidate = true;
+                var buttons = _renderStack.SnapshotOfType<IButton>();
+                for (int i = 0; i < buttons.Length; i++) if (buttons[i].HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam))) needsInvalidate = true;
+                var inputs = _renderStack.SnapshotOfType<IInputField>();
+                for (int i = 0; i < inputs.Length; i++) if (inputs[i].HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam))) needsInvalidate = true;
                 if (needsInvalidate) Invalidate();
                 return IntPtr.Zero;
             }
             case NativeMethods.WmLButtonDown:
-                foreach (var r in _renderStack.OfType<IButton>()) r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-                foreach (var r in _renderStack.OfType<IInputField>()) r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            {
+                var buttons = _renderStack.SnapshotOfType<IButton>();
+                for (int i = 0; i < buttons.Length; i++) buttons[i].HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+                var inputs = _renderStack.SnapshotOfType<IInputField>();
+                for (int i = 0; i < inputs.Length; i++) inputs[i].HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
                 Invalidate();
                 return IntPtr.Zero;
+            }
             case NativeMethods.WmLButtonUp:
-                foreach (var r in _renderStack.OfType<IButton>()) r.HandleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            {
+                var buttons = _renderStack.SnapshotOfType<IButton>();
+                for (int i = 0; i < buttons.Length; i++) buttons[i].HandleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
                 Invalidate();
                 return IntPtr.Zero;
+            }
             case NativeMethods.WmKeyPress:
-                foreach (var r in _renderStack.OfType<IInputField>()) r.HandleKeyPress((char)wParam);
+            {
+                var inputs = _renderStack.SnapshotOfType<IInputField>();
+                for (int i = 0; i < inputs.Length; i++) inputs[i].HandleKeyPress((char)wParam);
                 Invalidate();
                 return IntPtr.Zero;
+            }
             default:
                 return NativeMethods.DefWindowProcW(hwnd, msg, wParam, lParam);
         }
