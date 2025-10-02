@@ -13,6 +13,8 @@ public static class NativeMethods
     public const int WmDestroy = 0x0002;
     public const int WmPaint = 0x000F;
     public const int WmSize = 0x0005;
+    public const int WmSetFocus = 0x0007; // added for completeness
+    public const int WmKillFocus = 0x0008; // added to clear key state on focus loss
 
     public const int CsHredraw = 0x0002;
     public const int CsVredraw = 0x0001;

@@ -101,7 +101,7 @@ public sealed class Win32Window : IDisposable
     public void Add(RenderStack stack)
     {
         foreach (var drawable in stack)
-            if (drawable is IRenderable renderable) Add(renderable);
+            Add(drawable); // simplified: stack already yields IRenderable
     }
 
     public void Remove(IRenderable drawable)
@@ -157,8 +157,13 @@ public sealed class Win32Window : IDisposable
                 if (_hwnd != IntPtr.Zero && NativeMethods.GetClientRect(_hwnd, out var rect)) { _width = rect.right - rect.left; _height = rect.bottom - rect.top; }
                 Resized?.Invoke();
                 return IntPtr.Zero;
+            case NativeMethods.WmKillFocus: // clear key state on focus loss
+                ResetKeyState(fireKeyUp: true);
+                Invalidate();
+                return IntPtr.Zero;
             case NativeMethods.WmDestroy:
                 Closed?.Invoke();
+                ResetKeyState(fireKeyUp: true);
                 ClearEvents();
                 _isDestroyed = true;
                 _hwnd = IntPtr.Zero;
@@ -210,7 +215,6 @@ public sealed class Win32Window : IDisposable
             _hBackgroundBrush = IntPtr.Zero;
         }
 
-        // Eigener Brush statt GdiCache, um Freigabe-Konflikte zu vermeiden
         _hBackgroundBrush = NativeMethods.CreateSolidBrush(NativeMethods.Rgb(color));
         if (_hwnd != IntPtr.Zero)
             NativeMethods.SetClassLongPtr(_hwnd, NativeMethods.GclpHbrbackground, _hBackgroundBrush);
@@ -286,6 +290,18 @@ public sealed class Win32Window : IDisposable
         CleanRenderStack();
     }
 
+    private void ResetKeyState(bool fireKeyUp)
+    {
+        if (_keysDown.Count == 0) return;
+        if (fireKeyUp)
+        {
+            foreach (var key in _keysDown)
+                KeyUp?.Invoke(key);
+        }
+        _keysDown.Clear();
+        KeysDown?.Invoke(GetPressedKeys());
+    }
+
     public bool IsKeyDown(Key key) => _keysDown.Contains(key);
     public IReadOnlyCollection<Key> GetPressedKeys() => _keysDown;
 
@@ -296,6 +312,7 @@ public sealed class Win32Window : IDisposable
         if (_hBackgroundBrush != IntPtr.Zero) { NativeMethods.DeleteObject(_hBackgroundBrush); _hBackgroundBrush = IntPtr.Zero; }
         NativeMethods.KillTimer(_hwnd, 1);
         if (!_isDestroyed && _hwnd != IntPtr.Zero) Destroy();
+        ResetKeyState(fireKeyUp: false);
         ClearEvents();
     }
 }

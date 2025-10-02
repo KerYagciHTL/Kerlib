@@ -29,7 +29,6 @@ public sealed class RenderStack : IEnumerable<IRenderable>
 
     public void DrawAll(IntPtr rt)
     {
-        // Iteration per Index (leichter schneller als foreach auf List-Enumerator)
         for (int i = 0; i < _items.Count; i++)
             _items[i].Draw(rt);
     }
@@ -41,7 +40,6 @@ public sealed class RenderStack : IEnumerable<IRenderable>
 
     public T[] SnapshotOfType<T>() where T : class
     {
-        // Snapshot für sichere Iteration bei gleichzeitiger Modifikation
         return _items.OfType<T>().ToArray();
     }
 }
