@@ -101,7 +101,7 @@ public sealed class Win32Window : IDisposable
     public void Add(RenderStack stack)
     {
         foreach (var drawable in stack)
-            Add(drawable); // simplified: stack already yields IRenderable
+            Add(drawable);
     }
 
     public void Remove(IRenderable drawable)
@@ -157,7 +157,7 @@ public sealed class Win32Window : IDisposable
                 if (_hwnd != IntPtr.Zero && NativeMethods.GetClientRect(_hwnd, out var rect)) { _width = rect.right - rect.left; _height = rect.bottom - rect.top; }
                 Resized?.Invoke();
                 return IntPtr.Zero;
-            case NativeMethods.WmKillFocus: // clear key state on focus loss
+            case NativeMethods.WmKillFocus:
                 ResetKeyState(fireKeyUp: true);
                 Invalidate();
                 return IntPtr.Zero;
