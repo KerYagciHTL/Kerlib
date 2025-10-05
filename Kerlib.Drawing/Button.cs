@@ -3,7 +3,7 @@ using Kerlib.Native;
 
 namespace Kerlib.Drawing;
 
-public class Button : IButton, IDisposable
+public sealed class Button : IButton, IDisposable
 {
     private Point _position;
     private int _width, _height;

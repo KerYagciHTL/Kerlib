@@ -1,0 +1,50 @@
+using Kerlib.Core;
+using Kerlib.Drawing;
+using Kerlib.Native;
+using Kerlib.Window;
+
+namespace Kerlib;
+
+public class SettingsWindow : Core.Window
+{
+    private readonly Button _button;
+    public SettingsWindow() 
+        : base("Settings Window", 600, 400)
+    {
+        Resized += OnWindowResize;
+        Closed += OnWindowClose;
+        BackgroundColor = Color.Blue;
+
+        _button = new Button(new Point(100, 100), 200, 50, "Back to Main");
+        _button.Clicked += OnButtonClick;
+
+        var stack = new RenderStack();
+        stack.Add(new Text(new Point(50, 50), "Settings Page", Color.Black, "Consolas", 20));
+        stack.Add(_button);
+
+        Add(stack);
+        
+        Console.WriteLine(Title);
+        Console.WriteLine(Width.ToString());
+        Console.WriteLine(Height.ToString());
+    }
+    
+    private void OnButtonClick(object? sender, EventArgs e)
+    {
+        Console.WriteLine("Switching to MainWindow...");
+        Switch(new MainWindow());
+    }
+    private void OnWindowResize()
+    {
+        Console.WriteLine($"SettingsWindow resized to {Width}x{Height}");
+    }
+    private void OnWindowClose()
+    {
+        Console.WriteLine("SettingsWindow closed");
+
+        _button.Clicked -= OnButtonClick;
+
+        Resized -= OnWindowResize;
+        Closed -= OnWindowClose;
+    }
+}

@@ -1,9 +1,11 @@
 ﻿using Kerlib.Native;
+using System.Runtime.InteropServices;
 
 namespace Kerlib.Core;
 
 public static class WindowManager
 {
+
     private static Window? _currentWindow;
     private static bool _shouldQuit = false;
 

@@ -1,4 +1,5 @@
 ﻿using Kerlib.Core;
+using Kerlib.Native;
 
 namespace Kerlib;
 
@@ -12,20 +13,10 @@ public static class Program
             WindowManager.RegisterWindow(window);
             WindowManager.Run();
         }
-        catch (DllNotFoundException)
+        finally
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Critical error: Unable to load shared libraries!");
-            Console.ResetColor();
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("This library is only supported on Windows versions greater than 6.1.");
-            Console.ResetColor();
+            GdiCache.Dispose();
+            FontCache.Dispose();
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
-
     }
 }

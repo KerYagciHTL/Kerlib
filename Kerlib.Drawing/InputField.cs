@@ -244,15 +244,9 @@ public sealed class InputField : IInputField, IDisposable
     public void HandleKeyPress(char key)
     {
         if (!_focused) return;
-
-        if (key == '\b')
-        {
-            Backspace();
-        }
-        else
-        {
-            InsertChar(key);
-        }
+        if (key == '\b') { Backspace(); return; }
+        if (char.IsControl(key)) return;
+        InsertChar(key);
     }
     private void InsertChar(char c)
     {
@@ -276,9 +270,7 @@ public sealed class InputField : IInputField, IDisposable
     {
         if (length <= 0) return 0;
         if (length > text.Length) length = text.Length;
-
-        var substring = text.Substring(0, length);
-        NativeMethods.GetTextExtentPoint32(hdc, substring, substring.Length, out var size);
+        NativeMethods.GetTextExtentPoint32(hdc, text, length, out var size); // vermeidet Substring-Allocation
         return size.cx;
     }
 

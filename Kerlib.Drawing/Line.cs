@@ -3,7 +3,7 @@ using Kerlib.Native;
 
 namespace Kerlib.Drawing
 {
-    public class Line : IRenderable, INotifyRenderableChanged, IDisposable
+    public sealed class Line : IRenderable, INotifyRenderableChanged, IDisposable
     {
         private Point _start;
         private Point _end;
@@ -68,19 +68,12 @@ namespace Kerlib.Drawing
 
         public void Draw(IntPtr hdc)
         {
-            if (!_disposed)
-            {
-                var pen = NativeMethods.CreatePen(0, 1, _color);
-                var oldPen = NativeMethods.SelectObject(hdc, pen);
-                NativeMethods.MoveToEx(hdc, _start.X, _start.Y, IntPtr.Zero);
-                NativeMethods.LineTo(hdc, _end.X, _end.Y);
-                NativeMethods.SelectObject(hdc, oldPen);
-                NativeMethods.DeleteObject(pen);
-            }
-            else
-            {
-                throw new ObjectDisposedException(nameof(Line));
-            }
+            if (_disposed) throw new ObjectDisposedException(nameof(Line));
+            var pen = GdiCache.GetOrCreatePen(1, _color);
+            var oldPen = NativeMethods.SelectObject(hdc, pen);
+            NativeMethods.MoveToEx(hdc, _start.X, _start.Y, IntPtr.Zero);
+            NativeMethods.LineTo(hdc, _end.X, _end.Y);
+            NativeMethods.SelectObject(hdc, oldPen);
         }
 
         public void Dispose()
