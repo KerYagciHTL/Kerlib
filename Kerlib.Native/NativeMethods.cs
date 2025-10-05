@@ -23,6 +23,7 @@ public static class NativeMethods
     public const uint WmKeyPress = 0x0102;
     public const uint WmKeyDown = 0x0100;
     public const uint WmKeyUp     = 0x0101;
+    public const uint WmMouseWheel = 0x020A;
 
     public const uint DtCenter = 0x00000001;
     public const uint DtVcenter = 0x00000004;
@@ -184,6 +185,10 @@ public static class NativeMethods
     
     [DllImport("user32.dll", EntryPoint = "SetClassLongPtrW", SetLastError = true)]
     public static extern IntPtr SetClassLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+    // Convert screen coordinates to client (window) coordinates
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool ScreenToClient(IntPtr hWnd, ref Point lpPoint);
 
     [DllImport("gdi32.dll")]
     public static extern bool MoveToEx(IntPtr hdc, int x, int y, IntPtr lpPoint);

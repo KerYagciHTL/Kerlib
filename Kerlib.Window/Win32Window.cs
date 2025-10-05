@@ -29,6 +29,10 @@ public sealed class Win32Window : IDisposable
     public event Action<Key>? KeyUp;
     public event Action<IReadOnlyCollection<Key>>? KeysDown;
     public event Action? Tick;
+    public event Action<int, int>? MouseMove;
+    public event Action<int, int>? MouseDown;
+    public event Action<int, int>? MouseUp;
+    public event Action<int, int, int>? MouseWheel; // x, y, delta
 
     public Win32Window(string title, int width, int height, Color? bgColor = null)
     {
@@ -164,21 +168,44 @@ public sealed class Win32Window : IDisposable
                 return IntPtr.Zero;
             case NativeMethods.WmMouseMove:
             {
+                var x = GET_X_LPARAM(lParam);
+                var y = GET_Y_LPARAM(lParam);
                 var needsInvalidate = false;
-                foreach (var r in _renderStack.OfType<IButton>()) if (r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam))) needsInvalidate = true;
-                foreach (var r in _renderStack.OfType<IInputField>()) if (r.HandleMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam))) needsInvalidate = true;
+                foreach (var r in _renderStack.OfType<IButton>()) if (r.HandleMouseMove(x, y)) needsInvalidate = true;
+                foreach (var r in _renderStack.OfType<IInputField>()) if (r.HandleMouseMove(x, y)) needsInvalidate = true;
+                MouseMove?.Invoke(x, y);
                 if (needsInvalidate) Invalidate();
                 return IntPtr.Zero;
             }
             case NativeMethods.WmLButtonDown:
-                foreach (var r in _renderStack.OfType<IButton>()) r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-                foreach (var r in _renderStack.OfType<IInputField>()) r.HandleMouseDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            {
+                var x = GET_X_LPARAM(lParam);
+                var y = GET_Y_LPARAM(lParam);
+                foreach (var r in _renderStack.OfType<IButton>()) r.HandleMouseDown(x, y);
+                foreach (var r in _renderStack.OfType<IInputField>()) r.HandleMouseDown(x, y);
+                MouseDown?.Invoke(x, y);
                 Invalidate();
                 return IntPtr.Zero;
+            }
             case NativeMethods.WmLButtonUp:
-                foreach (var r in _renderStack.OfType<IButton>()) r.HandleMouseUp(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            {
+                var x = GET_X_LPARAM(lParam);
+                var y = GET_Y_LPARAM(lParam);
+                foreach (var r in _renderStack.OfType<IButton>()) r.HandleMouseUp(x, y);
+                MouseUp?.Invoke(x, y);
                 Invalidate();
                 return IntPtr.Zero;
+            }
+            case NativeMethods.WmMouseWheel:
+            {
+                // high word of wParam is the wheel delta, lParam is screen coords
+                var delta = (short)((wParam.ToUInt64() >> 16) & 0xFFFF);
+                var pt = new NativeMethods.Point { x = (short)(lParam.ToInt32() & 0xFFFF), y = (short)((lParam.ToInt32() >> 16) & 0xFFFF) };
+                NativeMethods.ScreenToClient(hwnd, ref pt);
+                MouseWheel?.Invoke(pt.x, pt.y, delta);
+                Invalidate();
+                return IntPtr.Zero;
+            }
             case NativeMethods.WmKeyPress:
                 foreach (var r in _renderStack.OfType<IInputField>()) r.HandleKeyPress((char)wParam);
                 Invalidate();

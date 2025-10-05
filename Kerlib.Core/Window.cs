@@ -58,6 +58,26 @@ public abstract class Window : IDisposable
         add => _window.KeysDown += value;
         remove => _window.KeysDown -= value;
     }
+    public event Action<int, int>? MouseMove
+    {
+        add => _window.MouseMove += value;
+        remove => _window.MouseMove -= value;
+    }
+    public event Action<int, int>? MouseDown
+    {
+        add => _window.MouseDown += value;
+        remove => _window.MouseDown -= value;
+    }
+    public event Action<int, int>? MouseUp
+    {
+        add => _window.MouseUp += value;
+        remove => _window.MouseUp -= value;
+    }
+    public event Action<int, int, int>? MouseWheel
+    {
+        add => _window.MouseWheel += value;
+        remove => _window.MouseWheel -= value;
+    }
 
     protected Window(string title, int width, int height)
     {
