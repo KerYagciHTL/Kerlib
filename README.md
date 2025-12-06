@@ -1,3 +1,5 @@
+# Please note that I am still not finished with the Windows and Linux support! This will not work, so far!
+
 # Kerlib
 
 Kerlib is a lightweight and modern Win32 windowing library for C# applications, inspired by the design principles of Avalonia.  
