@@ -7,7 +7,7 @@ using Kerlib.Native;
 
 namespace Kerlib.Window;
 
-public sealed class Win32Window : IDisposable
+public sealed class Win32Window : INativeWindow
 {
     private readonly string _className;
     private readonly IntPtr _hInstance;
