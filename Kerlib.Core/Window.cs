@@ -1,6 +1,7 @@
 ﻿using Kerlib.Interfaces;
 using Kerlib.Native;
 using Kerlib.Window;
+using System.Runtime.InteropServices;
 
 namespace Kerlib.Core;
 
@@ -22,7 +23,7 @@ public abstract class Window : IDisposable
     
     private Color _backgroundColor = Color.White;
     
-    private readonly Win32Window _window;
+    private readonly INativeWindow _window;
     public event Action? Resized
     {
         add => _window.Resized += value;
@@ -81,10 +82,25 @@ public abstract class Window : IDisposable
 
     protected Window(string title, int width, int height)
     {
-        _window = new Win32Window(title, width, height, _backgroundColor);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            _window = new Win32Window(title, width, height, _backgroundColor);
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            _window = new LinuxWindow(title, width, height, _backgroundColor);
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            _window = new MacWindow(title, width, height, _backgroundColor);
+        }
+        else
+        {
+            throw new PlatformNotSupportedException("Operating system not supported.");
+        }
     }
 
-    internal Win32Window GetWin32Window() => _window;
+    internal INativeWindow GetNativeWindow() => _window;
 
     protected internal void Show()
     {

@@ -29,7 +29,7 @@ public static class WindowManager
 
             if (closePrevious)
             {
-                _currentWindow.GetWin32Window().Destroy();
+                _currentWindow.GetNativeWindow().Destroy();
                 _currentWindow.Dispose();
             }
         }
