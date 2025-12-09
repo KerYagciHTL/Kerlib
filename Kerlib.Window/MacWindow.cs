@@ -26,6 +26,7 @@ public sealed class MacWindow : INativeWindow
     public string GetTitle() => _title;
     public void SetBackgroundColor(Color color) => _backgroundColor = color;
 
+#pragma warning disable CS0067
     public event Action? Resized;
     public event Action? Closed;
     public event Action<Key>? KeyDown;
@@ -36,6 +37,7 @@ public sealed class MacWindow : INativeWindow
     public event Action<int, int>? MouseDown;
     public event Action<int, int>? MouseUp;
     public event Action<int, int, int>? MouseWheel;
+#pragma warning restore CS0067
 
     public void Show() 
     {
