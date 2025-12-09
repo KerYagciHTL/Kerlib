@@ -36,6 +36,8 @@ public sealed class Win32Window : IDisposable
 
     public Win32Window(string title, int width, int height, Color? bgColor = null)
     {
+        PlatformGuard.EnsureSupported();
+        
         _title = title;
         _height = height;
         _width = width;
