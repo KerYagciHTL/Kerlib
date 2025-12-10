@@ -1,7 +1,4 @@
-﻿using Kerlib.Native;
-using System.Runtime.InteropServices;
-
-namespace Kerlib.Core;
+﻿namespace Kerlib.Core;
 
 public static class WindowManager
 {
@@ -46,11 +43,14 @@ public static class WindowManager
 
     public static void Run()
     {
-        while (!_shouldQuit)
+        while (!_shouldQuit && _currentWindow != null)
         {
-            if (!NativeMethods.GetMessage(out var msg, IntPtr.Zero, 0, 0)) continue;
-            NativeMethods.TranslateMessage(ref msg);
-            NativeMethods.DispatchMessage(ref msg);
+            var nativeWindow = _currentWindow.GetNativeWindow();
+            if (!nativeWindow.ProcessMessages())
+            {
+                _shouldQuit = true;
+                break;
+            }
         }
 
         if (_currentWindow == null) return;

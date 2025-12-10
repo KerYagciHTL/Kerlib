@@ -303,6 +303,20 @@ public sealed class Win32Window : INativeWindow
     public bool IsKeyDown(Key key) => _keysDown.Contains(key);
     public IReadOnlyCollection<Key> GetPressedKeys() => _keysDown;
 
+    public bool ProcessMessages()
+    {
+        if (_isDestroyed || _hwnd == IntPtr.Zero) return false;
+        
+        while (NativeMethods.PeekMessage(out var msg, IntPtr.Zero, 0, 0, 1))
+        {
+            if (msg.message == NativeMethods.WmQuit) return false;
+            NativeMethods.TranslateMessage(ref msg);
+            NativeMethods.DispatchMessage(ref msg);
+        }
+        
+        return !_isDestroyed;
+    }
+
     public void Dispose()
     {
         if (_disposed) return;

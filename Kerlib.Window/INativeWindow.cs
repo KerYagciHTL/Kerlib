@@ -26,4 +26,5 @@ public interface INativeWindow : IDisposable
     void Add(IRenderable renderable);
     void Add(RenderStack stack);
     void Remove(IRenderable renderable);
+    bool ProcessMessages();
 }

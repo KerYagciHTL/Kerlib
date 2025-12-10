@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+﻿﻿using System.Runtime.InteropServices;
 
 namespace Kerlib.Native;
 
@@ -11,6 +11,7 @@ public static class NativeMethods
     public const int SwShowdefault = 10;
 
     public const int WmDestroy = 0x0002;
+    public const int WmQuit = 0x0012;
     public const int WmPaint = 0x000F;
     public const int WmSize = 0x0005;
     public const int WmSetFocus = 0x0007;
@@ -149,6 +150,9 @@ public static class NativeMethods
 
     [DllImport("user32.dll")]
     public static extern bool GetMessage(out Msg lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+
+    [DllImport("user32.dll")]
+    public static extern bool PeekMessage(out Msg lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax, uint wRemoveMsg);
 
     [DllImport("user32.dll")]
     public static extern bool TranslateMessage([In] ref Msg lpMsg);

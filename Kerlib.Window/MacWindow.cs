@@ -54,6 +54,14 @@ public sealed class MacWindow : INativeWindow
     public void Add(RenderStack stack) { }
     public void Remove(IRenderable renderable) { }
 
+    public bool ProcessMessages()
+    {
+        // TODO: Implement Cocoa/AppKit message processing
+        // For now, simulate a simple delay to prevent busy-waiting
+        Thread.Sleep(16); // ~60 FPS
+        return true;
+    }
+
     public void Dispose() 
     {
         Destroy();
