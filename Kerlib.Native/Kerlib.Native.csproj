@@ -4,6 +4,20 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Version>1.0.0</Version>
+        <Authors>Kerimcan Yagci</Authors>
+        <Company>Kerimcan Yagci</Company>
+        <Product>Kerlib</Product>
+        <Description>Kerlib Native - Native platform interop components for the Kerlib windowing library</Description>
+        <PackageProjectUrl>https://github.com/KerYagciHTL/Kerlib</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/KerYagciHTL/Kerlib</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
+
+    <ItemGroup>
+      <None Include="..\README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
 
 </Project>

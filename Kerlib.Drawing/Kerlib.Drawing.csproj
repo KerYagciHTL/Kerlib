@@ -4,6 +4,16 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Version>1.0.0</Version>
+        <Authors>Kerimcan Yagci</Authors>
+        <Company>Kerimcan Yagci</Company>
+        <Product>Kerlib</Product>
+        <Description>Kerlib Drawing - Drawing components for the Kerlib windowing library including buttons, images, text rendering</Description>
+        <PackageProjectUrl>https://github.com/KerYagciHTL/Kerlib</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/KerYagciHTL/Kerlib</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,6 +23,10 @@
 
     <ItemGroup>
       <PackageReference Include="System.Drawing.Common" Version="9.0.8" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

@@ -5,11 +5,25 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Kerlib.Window</RootNamespace>
+        <Version>1.0.0</Version>
+        <Authors>Kerimcan Yagci</Authors>
+        <Company>Kerimcan Yagci</Company>
+        <Product>Kerlib</Product>
+        <Description>Kerlib Window - Window management components for the Kerlib windowing library</Description>
+        <PackageProjectUrl>https://github.com/KerYagciHTL/Kerlib</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/KerYagciHTL/Kerlib</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Kerlib.Interfaces\Kerlib.Interfaces.csproj" />
       <ProjectReference Include="..\Kerlib.Native\Kerlib.Native.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>
