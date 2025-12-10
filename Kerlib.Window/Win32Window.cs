@@ -32,7 +32,7 @@ public sealed class Win32Window : INativeWindow
     public event Action<int, int>? MouseMove;
     public event Action<int, int>? MouseDown;
     public event Action<int, int>? MouseUp;
-    public event Action<int, int, int>? MouseWheel; // x, y, delta
+    public event Action<int, int, int>? MouseWheel;
 
     public Win32Window(string title, int width, int height, Color? bgColor = null)
     {
@@ -200,7 +200,6 @@ public sealed class Win32Window : INativeWindow
             }
             case NativeMethods.WmMouseWheel:
             {
-                // high word of wParam is the wheel delta, lParam is screen coords
                 var delta = (short)((wParam.ToUInt64() >> 16) & 0xFFFF);
                 var pt = new NativeMethods.Point { x = (short)(lParam.ToInt32() & 0xFFFF), y = (short)((lParam.ToInt32() >> 16) & 0xFFFF) };
                 NativeMethods.ScreenToClient(hwnd, ref pt);

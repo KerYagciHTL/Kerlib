@@ -1,4 +1,4 @@
-﻿namespace Kerlib.Native;
+﻿﻿namespace Kerlib.Native;
 
 public sealed class Key
 {
@@ -101,17 +101,17 @@ public sealed class Key
     public static readonly Key Decimal = new(0x6E, "Decimal");
     public static readonly Key Divide = new(0x6F, "Divide");
 
-    public static readonly Key Oem1 = new(0xBA, "OEM1"); // ;:
-    public static readonly Key OemPlus = new(0xBB, "OEMPlus"); // +=
-    public static readonly Key OemComma = new(0xBC, "OEMComma"); // ,<
-    public static readonly Key OemMinus = new(0xBD, "OEMMinus"); // -_
-    public static readonly Key OemPeriod = new(0xBE, "OEMPeriod"); // .>
-    public static readonly Key Oem2 = new(0xBF, "OEM2"); // /?
-    public static readonly Key Oem3 = new(0xC0, "OEM3"); // `~
-    public static readonly Key Oem4 = new(0xDB, "OEM4"); // [{
-    public static readonly Key Oem5 = new(0xDC, "OEM5"); // \|
-    public static readonly Key Oem6 = new(0xDD, "OEM6"); // ]}
-    public static readonly Key Oem7 = new(0xDE, "OEM7"); // '"
+    public static readonly Key Oem1 = new(0xBA, "OEM1");
+    public static readonly Key OemPlus = new(0xBB, "OEMPlus");
+    public static readonly Key OemComma = new(0xBC, "OEMComma");
+    public static readonly Key OemMinus = new(0xBD, "OEMMinus");
+    public static readonly Key OemPeriod = new(0xBE, "OEMPeriod");
+    public static readonly Key Oem2 = new(0xBF, "OEM2");
+    public static readonly Key Oem3 = new(0xC0, "OEM3");
+    public static readonly Key Oem4 = new(0xDB, "OEM4");
+    public static readonly Key Oem5 = new(0xDC, "OEM5");
+    public static readonly Key Oem6 = new(0xDD, "OEM6");
+    public static readonly Key Oem7 = new(0xDE, "OEM7");
 
     private static readonly Key?[] KeyMap = new Key?[256];
     private static readonly Dictionary<int, Key> UnknownKeys = new();
@@ -142,7 +142,6 @@ public sealed class Key
         if (virtualCode >= 0 && virtualCode < KeyMap.Length && KeyMap[virtualCode] != null)
             return KeyMap[virtualCode]!;
 
-        // cache
         if (UnknownKeys.TryGetValue(virtualCode, out var key)) return key;
         key = new Key(virtualCode, $"Unknown_{virtualCode:X}");
         UnknownKeys[virtualCode] = key;

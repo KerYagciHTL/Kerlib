@@ -192,7 +192,6 @@ public static class NativeMethods
     [DllImport("user32.dll", EntryPoint = "SetClassLongPtrW", SetLastError = true)]
     public static extern IntPtr SetClassLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
-    // Convert screen coordinates to client (window) coordinates
     [DllImport("user32.dll", SetLastError = true)]
     public static extern bool ScreenToClient(IntPtr hWnd, ref Point lpPoint);
 

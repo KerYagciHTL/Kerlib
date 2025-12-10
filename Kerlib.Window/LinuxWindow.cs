@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Kerlib.Interfaces;
 using Kerlib.Native;
 
@@ -41,43 +40,40 @@ public sealed class LinuxWindow : INativeWindow
         
         InitializeX11();
         
-        // Setup timer for tick events
-        _tickTimer = new System.Timers.Timer(16); // ~60 FPS
-        _tickTimer.Elapsed += (s, e) => Tick?.Invoke();
+
+        _tickTimer = new System.Timers.Timer(16);
+        _tickTimer.Elapsed += (_, _) => Tick?.Invoke();
         _tickTimer.Start();
     }
 
     private void InitializeX11()
     {
-        _display = X11.XOpenDisplay(IntPtr.Zero);
+        _display = X11NativeMethods.XOpenDisplay(IntPtr.Zero);
         if (_display == IntPtr.Zero)
             throw new Exception("Cannot open X11 display");
 
-        _screen = X11.XDefaultScreen(_display);
-        var rootWindow = X11.XRootWindow(_display, _screen);
-        var blackPixel = X11.XBlackPixel(_display, _screen);
-        var whitePixel = X11.XWhitePixel(_display, _screen);
+        _screen = X11NativeMethods.XDefaultScreen(_display);
+        var rootWindow = X11NativeMethods.XRootWindow(_display, _screen);
+        var blackPixel = X11NativeMethods.XBlackPixel(_display, _screen);
+        var whitePixel = X11NativeMethods.XWhitePixel(_display, _screen);
 
-        _window = X11.XCreateSimpleWindow(_display, rootWindow, 0, 0, _width, _height, 1,
+        _window = X11NativeMethods.XCreateSimpleWindow(_display, rootWindow, 0, 0, _width, _height, 1,
             blackPixel, whitePixel);
 
-        X11.XStoreName(_display, _window, _title);
+        X11NativeMethods.XStoreName(_display, _window, _title);
 
-        // Select input events
-        var eventMask = X11.ExposureMask | X11.KeyPressMask | X11.KeyReleaseMask |
-                       X11.ButtonPressMask | X11.ButtonReleaseMask | X11.PointerMotionMask |
-                       X11.StructureNotifyMask;
-        X11.XSelectInput(_display, _window, eventMask);
+        var eventMask = X11NativeMethods.ExposureMask | X11NativeMethods.KeyPressMask | X11NativeMethods.KeyReleaseMask |
+                       X11NativeMethods.ButtonPressMask | X11NativeMethods.ButtonReleaseMask | X11NativeMethods.PointerMotionMask |
+                       X11NativeMethods.StructureNotifyMask;
+        X11NativeMethods.XSelectInput(_display, _window, eventMask);
 
-        // Setup WM_DELETE_WINDOW protocol
-        var wmDeleteWindow = X11.XInternAtom(_display, "WM_DELETE_WINDOW", false);
-        X11.XSetWMProtocols(_display, _window, ref wmDeleteWindow, 1);
+        var wmDeleteWindow = X11NativeMethods.XInternAtom(_display, "WM_DELETE_WINDOW", false);
+        X11NativeMethods.XSetWMProtocols(_display, _window, ref wmDeleteWindow, 1);
 
-        // Create graphics context
-        _gc = X11.XCreateGC(_display, _window, 0, IntPtr.Zero);
+        _gc = X11NativeMethods.XCreateGC(_display, _window, 0, IntPtr.Zero);
         
-        // Create pixmap for double buffering
-        _pixmap = X11.XCreatePixmap(_display, _window, _width, _height, 24);
+
+        _pixmap = X11NativeMethods.XCreatePixmap(_display, _window, _width, _height, 24);
     }
 
     public int GetWidth() => _width;
@@ -92,8 +88,8 @@ public sealed class LinuxWindow : INativeWindow
 
     public void Show() 
     {
-        X11.XMapWindow(_display, _window);
-        X11.XFlush(_display);
+        X11NativeMethods.XMapWindow(_display, _window);
+        X11NativeMethods.XFlush(_display);
     }
 
     public void Destroy() 
@@ -106,25 +102,25 @@ public sealed class LinuxWindow : INativeWindow
         
         if (_pixmap != IntPtr.Zero)
         {
-            X11.XFreePixmap(_display, _pixmap);
+            X11NativeMethods.XFreePixmap(_display, _pixmap);
             _pixmap = IntPtr.Zero;
         }
         
         if (_gc != IntPtr.Zero)
         {
-            X11.XFreeGC(_display, _gc);
+            X11NativeMethods.XFreeGC(_display, _gc);
             _gc = IntPtr.Zero;
         }
         
         if (_window != IntPtr.Zero)
         {
-            X11.XDestroyWindow(_display, _window);
+            X11NativeMethods.XDestroyWindow(_display, _window);
             _window = IntPtr.Zero;
         }
         
         if (_display != IntPtr.Zero)
         {
-            X11.XCloseDisplay(_display);
+            X11NativeMethods.XCloseDisplay(_display);
             _display = IntPtr.Zero;
         }
         
@@ -143,8 +139,10 @@ public sealed class LinuxWindow : INativeWindow
     public void Add(RenderStack stack)
     {
         foreach (var drawable in stack)
-            if (drawable is IRenderable renderable)
+        {
+            if (drawable is { } renderable)
                 Add(renderable);
+        }
     }
 
     public void Remove(IRenderable renderable)
@@ -163,9 +161,9 @@ public sealed class LinuxWindow : INativeWindow
     {
         if (_window != IntPtr.Zero && !_isDestroyed)
         {
-            var exposeEvent = new X11.XExposeEvent
+            var exposeEvent = new X11NativeMethods.XExposeEvent
             {
-                type = X11.Expose,
+                type = X11NativeMethods.Expose,
                 display = _display,
                 window = _window,
                 x = 0,
@@ -174,8 +172,8 @@ public sealed class LinuxWindow : INativeWindow
                 height = _height,
                 count = 0
             };
-            X11.XSendEvent(_display, _window, false, X11.ExposureMask, ref exposeEvent);
-            X11.XFlush(_display);
+            X11NativeMethods.XSendEvent(_display, _window, false, X11NativeMethods.ExposureMask, ref exposeEvent);
+            X11NativeMethods.XFlush(_display);
         }
     }
 
@@ -184,34 +182,34 @@ public sealed class LinuxWindow : INativeWindow
         if (_display == IntPtr.Zero || _isDestroyed)
             return false;
 
-        while (X11.XPending(_display) > 0)
+        while (X11NativeMethods.XPending(_display) > 0)
         {
-            X11.XNextEvent(_display, out var xevent);
+            X11NativeMethods.XNextEvent(_display, out var xevent);
             
             switch (xevent.type)
             {
-                case X11.Expose:
+                case X11NativeMethods.Expose:
                     OnPaint();
                     break;
                     
-                case X11.ConfigureNotify:
+                case X11NativeMethods.ConfigureNotify:
                     if (xevent.xconfigure.width != _width || xevent.xconfigure.height != _height)
                     {
                         _width = xevent.xconfigure.width;
                         _height = xevent.xconfigure.height;
                         
-                        // Recreate pixmap for new size
+
                         if (_pixmap != IntPtr.Zero)
-                            X11.XFreePixmap(_display, _pixmap);
-                        _pixmap = X11.XCreatePixmap(_display, _window, _width, _height, 24);
+                            X11NativeMethods.XFreePixmap(_display, _pixmap);
+                        _pixmap = X11NativeMethods.XCreatePixmap(_display, _window, _width, _height, 24);
                         
                         Resized?.Invoke();
                     }
                     break;
                     
-                case X11.KeyPress:
+                case X11NativeMethods.KeyPress:
                     {
-                        var keysym = X11.XLookupKeysym(ref xevent.xkey, 0);
+                        var keysym = X11NativeMethods.XLookupKeysym(ref xevent.xkey, 0);
                         var key = ConvertX11KeyToKey(keysym);
                         if (!_keysDown.Contains(key))
                         {
@@ -220,9 +218,8 @@ public sealed class LinuxWindow : INativeWindow
                             KeysDown?.Invoke(GetPressedKeys());
                         }
                         
-                        // Handle text input for InputFields
                         var buffer = new byte[32];
-                        var count = X11.XLookupString(ref xevent.xkey, buffer, buffer.Length, out _, IntPtr.Zero);
+                        var count = X11NativeMethods.XLookupString(ref xevent.xkey, buffer, buffer.Length, out _, IntPtr.Zero);
                         if (count > 0)
                         {
                             var text = System.Text.Encoding.UTF8.GetString(buffer, 0, count);
@@ -235,9 +232,9 @@ public sealed class LinuxWindow : INativeWindow
                     }
                     break;
                     
-                case X11.KeyRelease:
+                case X11NativeMethods.KeyRelease:
                     {
-                        var keysym = X11.XLookupKeysym(ref xevent.xkey, 0);
+                        var keysym = X11NativeMethods.XLookupKeysym(ref xevent.xkey, 0);
                         var key = ConvertX11KeyToKey(keysym);
                         if (_keysDown.Remove(key))
                         {
@@ -247,12 +244,12 @@ public sealed class LinuxWindow : INativeWindow
                     }
                     break;
                     
-                case X11.ButtonPress:
+                case X11NativeMethods.ButtonPress:
                     {
                         var x = xevent.xbutton.x;
                         var y = xevent.xbutton.y;
                         
-                        if (xevent.xbutton.button == 1) // Left button
+                        if (xevent.xbutton.button == 1)
                         {
                             foreach (var button in _renderStack.OfType<IButton>())
                                 button.HandleMouseDown(x, y);
@@ -260,11 +257,11 @@ public sealed class LinuxWindow : INativeWindow
                                 inputField.HandleMouseDown(x, y);
                             MouseDown?.Invoke(x, y);
                         }
-                        else if (xevent.xbutton.button == 4) // Scroll up
+                        else if (xevent.xbutton.button == 4)
                         {
                             MouseWheel?.Invoke(x, y, 120);
                         }
-                        else if (xevent.xbutton.button == 5) // Scroll down
+                        else if (xevent.xbutton.button == 5)
                         {
                             MouseWheel?.Invoke(x, y, -120);
                         }
@@ -272,12 +269,12 @@ public sealed class LinuxWindow : INativeWindow
                     }
                     break;
                     
-                case X11.ButtonRelease:
+                case X11NativeMethods.ButtonRelease:
                     {
                         var x = xevent.xbutton.x;
                         var y = xevent.xbutton.y;
                         
-                        if (xevent.xbutton.button == 1) // Left button
+                        if (xevent.xbutton.button == 1)
                         {
                             foreach (var button in _renderStack.OfType<IButton>())
                                 button.HandleMouseUp(x, y);
@@ -287,7 +284,7 @@ public sealed class LinuxWindow : INativeWindow
                     }
                     break;
                     
-                case X11.MotionNotify:
+                case X11NativeMethods.MotionNotify:
                     {
                         var x = xevent.xmotion.x;
                         var y = xevent.xmotion.y;
@@ -306,10 +303,10 @@ public sealed class LinuxWindow : INativeWindow
                     }
                     break;
                     
-                case X11.ClientMessage:
-                    if (xevent.xclient.data_l0 == X11.XInternAtom(_display, "WM_DELETE_WINDOW", false))
+                case X11NativeMethods.ClientMessage:
+                    if (xevent.xclient.data_l0 == X11NativeMethods.XInternAtom(_display, "WM_DELETE_WINDOW", false))
                     {
-                        return false; // Window close requested
+                        return false;
                     }
                     break;
             }
@@ -324,28 +321,25 @@ public sealed class LinuxWindow : INativeWindow
         if (_pixmap == IntPtr.Zero || _gc == IntPtr.Zero)
             return;
 
-        // Clear pixmap with background color
         var colorValue = (_backgroundColor.R << 16) | (_backgroundColor.G << 8) | _backgroundColor.B;
-        X11.XSetForeground(_display, _gc, (ulong)colorValue);
-        X11.XFillRectangle(_display, _pixmap, _gc, 0, 0, _width, _height);
+        X11NativeMethods.XSetForeground(_display, _gc, (ulong)colorValue);
+        X11NativeMethods.XFillRectangle(_display, _pixmap, _gc, 0, 0, (uint)_width, (uint)_height);
 
-        // Set X11 context for cross-platform drawing
         X11NativeMethods.SetCurrentContext(_display, _gc, _pixmap);
         
         try
         {
-            // Draw all renderables to pixmap
+
             _renderStack.DrawAll(_pixmap);
         }
         finally
         {
-            // Clear context after rendering
+
             X11NativeMethods.ClearCurrentContext();
         }
 
-        // Copy pixmap to window
-        X11.XCopyArea(_display, _pixmap, _window, _gc, 0, 0, _width, _height, 0, 0);
-        X11.XFlush(_display);
+        X11NativeMethods.XCopyArea(_display, _pixmap, _window, _gc, 0, 0, _width, _height, 0, 0);
+        X11NativeMethods.XFlush(_display);
     }
 
     private IReadOnlyCollection<Key> GetPressedKeys() => _keysDown.ToArray();
@@ -353,281 +347,41 @@ public sealed class LinuxWindow : INativeWindow
     private static Key ConvertX11KeyToKey(IntPtr keysym)
     {
         var sym = keysym.ToInt64();
-        
-        // Letters
-        if (sym >= 0x61 && sym <= 0x7A) // a-z
-            return Key.FromVirtualCode(sym - 0x61 + 0x41);
-        if (sym >= 0x41 && sym <= 0x5A) // A-Z
-            return Key.FromVirtualCode(sym);
-            
-        // Numbers
-        if (sym >= 0x30 && sym <= 0x39) // 0-9
-            return Key.FromVirtualCode(sym);
-            
-        // Special keys
+
         return sym switch
         {
-            0xFF0D => Key.FromVirtualCode(0x0D), // Return/Enter
-            0xFF1B => Key.FromVirtualCode(0x1B), // Escape
-            0xFF08 => Key.FromVirtualCode(0x08), // Backspace
-            0xFF09 => Key.FromVirtualCode(0x09), // Tab
-            0x0020 => Key.FromVirtualCode(0x20), // Space
-            0xFFBE => Key.FromVirtualCode(0x70), // F1
-            0xFFBF => Key.FromVirtualCode(0x71), // F2
-            0xFFC0 => Key.FromVirtualCode(0x72), // F3
-            0xFFC1 => Key.FromVirtualCode(0x73), // F4
-            0xFFC2 => Key.FromVirtualCode(0x74), // F5
-            0xFFC3 => Key.FromVirtualCode(0x75), // F6
-            0xFFC4 => Key.FromVirtualCode(0x76), // F7
-            0xFFC5 => Key.FromVirtualCode(0x77), // F8
-            0xFFC6 => Key.FromVirtualCode(0x78), // F9
-            0xFFC7 => Key.FromVirtualCode(0x79), // F10
-            0xFFC8 => Key.FromVirtualCode(0x7A), // F11
-            0xFFC9 => Key.FromVirtualCode(0x7B), // F12
-            0xFF51 => Key.FromVirtualCode(0x25), // Left arrow
-            0xFF52 => Key.FromVirtualCode(0x26), // Up arrow
-            0xFF53 => Key.FromVirtualCode(0x27), // Right arrow
-            0xFF54 => Key.FromVirtualCode(0x28), // Down arrow
-            _ => Key.FromVirtualCode(0) // Unknown
+            >= 0x61 and <= 0x7A => Key.FromVirtualCode((int)(sym - 0x61 + 0x41)),
+            >= 0x41 and <= 0x5A or >= 0x30 and <= 0x39 => Key.FromVirtualCode((int)sym),
+            _ => sym switch
+            {
+                0xFF0D => Key.FromVirtualCode(0x0D),
+                0xFF1B => Key.FromVirtualCode(0x1B),
+                0xFF08 => Key.FromVirtualCode(0x08),
+                0xFF09 => Key.FromVirtualCode(0x09),
+                0x0020 => Key.FromVirtualCode(0x20),
+                0xFFBE => Key.FromVirtualCode(0x70),
+                0xFFBF => Key.FromVirtualCode(0x71),
+                0xFFC0 => Key.FromVirtualCode(0x72),
+                0xFFC1 => Key.FromVirtualCode(0x73),
+                0xFFC2 => Key.FromVirtualCode(0x74),
+                0xFFC3 => Key.FromVirtualCode(0x75),
+                0xFFC4 => Key.FromVirtualCode(0x76),
+                0xFFC5 => Key.FromVirtualCode(0x77),
+                0xFFC6 => Key.FromVirtualCode(0x78),
+                0xFFC7 => Key.FromVirtualCode(0x79),
+                0xFFC8 => Key.FromVirtualCode(0x7A),
+                0xFFC9 => Key.FromVirtualCode(0x7B),
+                0xFF51 => Key.FromVirtualCode(0x25),
+                0xFF52 => Key.FromVirtualCode(0x26),
+                0xFF53 => Key.FromVirtualCode(0x27),
+                0xFF54 => Key.FromVirtualCode(0x28),
+                _ => Key.FromVirtualCode(0)
+            }
         };
     }
 
     public void Dispose() 
     {
         Destroy();
-    }
-
-    // X11 P/Invoke declarations
-    private static class X11
-    {
-        public const int Expose = 12;
-        public const int KeyPress = 2;
-        public const int KeyRelease = 3;
-        public const int ButtonPress = 4;
-        public const int ButtonRelease = 5;
-        public const int MotionNotify = 6;
-        public const int ConfigureNotify = 22;
-        public const int ClientMessage = 33;
-
-        public const long ExposureMask = 1L << 15;
-        public const long KeyPressMask = 1L << 0;
-        public const long KeyReleaseMask = 1L << 1;
-        public const long ButtonPressMask = 1L << 2;
-        public const long ButtonReleaseMask = 1L << 3;
-        public const long PointerMotionMask = 1L << 6;
-        public const long StructureNotifyMask = 1L << 17;
-
-        [DllImport("libX11.so.6")]
-        public static extern IntPtr XOpenDisplay(IntPtr display);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XCloseDisplay(IntPtr display);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XDefaultScreen(IntPtr display);
-
-        [DllImport("libX11.so.6")]
-        public static extern IntPtr XRootWindow(IntPtr display, int screen);
-
-        [DllImport("libX11.so.6")]
-        public static extern ulong XBlackPixel(IntPtr display, int screen);
-
-        [DllImport("libX11.so.6")]
-        public static extern ulong XWhitePixel(IntPtr display, int screen);
-
-        [DllImport("libX11.so.6")]
-        public static extern IntPtr XCreateSimpleWindow(IntPtr display, IntPtr parent, int x, int y,
-            int width, int height, int border_width, ulong border, ulong background);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XStoreName(IntPtr display, IntPtr window, string name);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XSelectInput(IntPtr display, IntPtr window, long event_mask);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XMapWindow(IntPtr display, IntPtr window);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XDestroyWindow(IntPtr display, IntPtr window);
-
-        [DllImport("libX11.so.6")]
-        public static extern IntPtr XCreateGC(IntPtr display, IntPtr drawable, ulong valuemask, IntPtr values);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XFreeGC(IntPtr display, IntPtr gc);
-
-        [DllImport("libX11.so.6")]
-        public static extern IntPtr XCreatePixmap(IntPtr display, IntPtr drawable, int width, int height, int depth);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XFreePixmap(IntPtr display, IntPtr pixmap);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XFlush(IntPtr display);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XPending(IntPtr display);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XNextEvent(IntPtr display, out XEvent xevent);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XSetForeground(IntPtr display, IntPtr gc, ulong foreground);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XFillRectangle(IntPtr display, IntPtr drawable, IntPtr gc, int x, int y, int width, int height);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XDrawRectangle(IntPtr display, IntPtr drawable, IntPtr gc, int x, int y, int width, int height);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XDrawLine(IntPtr display, IntPtr drawable, IntPtr gc, int x1, int y1, int x2, int y2);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XDrawString(IntPtr display, IntPtr drawable, IntPtr gc, int x, int y, string str, int len);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XCopyArea(IntPtr display, IntPtr src, IntPtr dest, IntPtr gc,
-            int src_x, int src_y, int width, int height, int dest_x, int dest_y);
-
-        [DllImport("libX11.so.6")]
-        public static extern IntPtr XInternAtom(IntPtr display, string atom_name, bool only_if_exists);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XSetWMProtocols(IntPtr display, IntPtr window, ref IntPtr protocols, int count);
-
-        [DllImport("libX11.so.6")]
-        public static extern IntPtr XLookupKeysym(ref XKeyEvent key_event, int index);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XLookupString(ref XKeyEvent event_struct, byte[] buffer_return,
-            int bytes_buffer, out IntPtr keysym_return, IntPtr status_in_out);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XSendEvent(IntPtr display, IntPtr window, bool propagate, long event_mask, ref XExposeEvent event_send);
-
-        [StructLayout(LayoutKind.Explicit)]
-        public struct XEvent
-        {
-            [FieldOffset(0)] public int type;
-            [FieldOffset(0)] public XExposeEvent xexpose;
-            [FieldOffset(0)] public XKeyEvent xkey;
-            [FieldOffset(0)] public XButtonEvent xbutton;
-            [FieldOffset(0)] public XMotionEvent xmotion;
-            [FieldOffset(0)] public XConfigureEvent xconfigure;
-            [FieldOffset(0)] public XClientMessageEvent xclient;
-            [FieldOffset(0)] public unsafe fixed long pad[24];
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct XExposeEvent
-        {
-            public int type;
-            public IntPtr serial;
-            public bool send_event;
-            public IntPtr display;
-            public IntPtr window;
-            public int x;
-            public int y;
-            public int width;
-            public int height;
-            public int count;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct XKeyEvent
-        {
-            public int type;
-            public IntPtr serial;
-            public bool send_event;
-            public IntPtr display;
-            public IntPtr window;
-            public IntPtr root;
-            public IntPtr subwindow;
-            public IntPtr time;
-            public int x;
-            public int y;
-            public int x_root;
-            public int y_root;
-            public uint state;
-            public uint keycode;
-            public bool same_screen;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct XButtonEvent
-        {
-            public int type;
-            public IntPtr serial;
-            public bool send_event;
-            public IntPtr display;
-            public IntPtr window;
-            public IntPtr root;
-            public IntPtr subwindow;
-            public IntPtr time;
-            public int x;
-            public int y;
-            public int x_root;
-            public int y_root;
-            public uint state;
-            public uint button;
-            public bool same_screen;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct XMotionEvent
-        {
-            public int type;
-            public IntPtr serial;
-            public bool send_event;
-            public IntPtr display;
-            public IntPtr window;
-            public IntPtr root;
-            public IntPtr subwindow;
-            public IntPtr time;
-            public int x;
-            public int y;
-            public int x_root;
-            public int y_root;
-            public uint state;
-            public byte is_hint;
-            public bool same_screen;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct XConfigureEvent
-        {
-            public int type;
-            public IntPtr serial;
-            public bool send_event;
-            public IntPtr display;
-            public IntPtr event_window;
-            public IntPtr window;
-            public int x;
-            public int y;
-            public int width;
-            public int height;
-            public int border_width;
-            public IntPtr above;
-            public bool override_redirect;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct XClientMessageEvent
-        {
-            public int type;
-            public IntPtr serial;
-            public bool send_event;
-            public IntPtr display;
-            public IntPtr window;
-            public IntPtr message_type;
-            public int format;
-            public IntPtr data_l0;
-            public IntPtr data_l1;
-            public IntPtr data_l2;
-            public IntPtr data_l3;
-            public IntPtr data_l4;
-        }
     }
 }

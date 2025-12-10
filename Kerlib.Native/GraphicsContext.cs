@@ -2,9 +2,9 @@ using System.Runtime.InteropServices;
 
 namespace Kerlib.Native;
 
-/// <summary>
-/// Cross-platform graphics context wrapper
-/// </summary>
+
+
+
 public static class GraphicsContext
 {
     private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
@@ -74,7 +74,7 @@ public static class GraphicsContext
         if (IsWindows)
         {
             NativeMethods.SetTextColor(hdc, color);
-            NativeMethods.SetBkMode(hdc, 1); // TRANSPARENT
+            NativeMethods.SetBkMode(hdc, 1);
             IntPtr hFont = FontCache.GetOrCreateFont(fontName, fontSize);
             IntPtr oldFont = NativeMethods.SelectObject(hdc, hFont);
             NativeMethods.TextOutW(hdc, x, y, text, text.Length);
@@ -85,7 +85,7 @@ public static class GraphicsContext
             var ctx = X11NativeMethods.GetX11Context(hdc);
             X11NativeMethods.XSetForeground(ctx.Display, ctx.GC, X11NativeMethods.ToX11Color(color));
             
-            // For now, use fixed font - full font support would require XFT
+
             X11NativeMethods.XDrawString(ctx.Display, ctx.Drawable, ctx.GC, x, y + fontSize, text, text.Length);
         }
     }
@@ -96,7 +96,7 @@ public static class GraphicsContext
         if (IsWindows)
         {
             NativeMethods.SetTextColor(hdc, color);
-            NativeMethods.SetBkMode(hdc, 1); // TRANSPARENT
+            NativeMethods.SetBkMode(hdc, 1);
             IntPtr hFont = FontCache.GetOrCreateFont(fontName, fontSize);
             IntPtr oldFont = NativeMethods.SelectObject(hdc, hFont);
             
@@ -109,20 +109,20 @@ public static class GraphicsContext
             var ctx = X11NativeMethods.GetX11Context(hdc);
             X11NativeMethods.XSetForeground(ctx.Display, ctx.GC, X11NativeMethods.ToX11Color(color));
             
-            // Simple center alignment approximation
-            int textWidth = text.Length * (fontSize / 2); // Rough estimate
+
+            int textWidth = text.Length * (fontSize / 2);
             int textHeight = fontSize;
             
             int textX = left;
             int textY = top + textHeight;
             
-            // Center horizontally
+
             if ((alignment & NativeMethods.DtCenter) != 0)
             {
                 textX = left + ((right - left) - textWidth) / 2;
             }
             
-            // Center vertically
+
             if ((alignment & NativeMethods.DtVcenter) != 0)
             {
                 textY = top + ((bottom - top) + textHeight) / 2;
@@ -144,7 +144,6 @@ public static class GraphicsContext
         }
         else if (IsLinux)
         {
-            // Rough approximation for text size on Linux
             int width = text.Length * (fontSize / 2);
             int height = fontSize;
             return (width, height);

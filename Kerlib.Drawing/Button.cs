@@ -84,15 +84,15 @@ public sealed class Button : IButton, IDisposable
 
         var bgColor = _pressed ? BackgroundPressed : _hovered ? BackgroundHover : BackgroundNormal;
 
-        // Fill background
+
         GraphicsContext.FillRectangle(hdc, _position.X, _position.Y, 
             _position.X + _width, _position.Y + _height, NativeMethods.Rgb(bgColor));
 
-        // Draw border
+
         GraphicsContext.DrawRectangle(hdc, _position.X, _position.Y, 
             _position.X + _width, _position.Y + _height, NativeMethods.Rgb(new Color(0, 0, 0)));
 
-        // Draw text
+
         GraphicsContext.DrawTextInRect(hdc, Text, _position.X, _position.Y, 
             _position.X + _width, _position.Y + _height, NativeMethods.Rgb(Foreground),
             NativeMethods.DtCenter | NativeMethods.DtVcenter | NativeMethods.DtSingleline);

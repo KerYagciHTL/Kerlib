@@ -158,18 +158,18 @@ public sealed class InputField : IInputField, IDisposable
 
         var bgColor = _focused ? BgFocused : _hovered ? BgHover : BgNormal;
 
-        // Fill background
+
         GraphicsContext.FillRectangle(hdc, _position.X, _position.Y, 
             _position.X + _width, _position.Y + _height, bgColor);
 
-        // Draw border
+
         var penColor = NativeMethods.Rgb(0, 0, 0);
         GraphicsContext.DrawRectangle(hdc, _position.X, _position.Y, 
             _position.X + _width, _position.Y + _height, penColor);
 
         var drawText = _cachedText ??= _textBuilder.ToString();
 
-        // Draw text
+
         GraphicsContext.DrawTextInRect(hdc, drawText, _position.X + 4, _position.Y, 
             _position.X + _width - 4, _position.Y + _height, Fg,
             NativeMethods.DtLeft | NativeMethods.DtVcenter | NativeMethods.DtSingleline);
@@ -273,6 +273,7 @@ public sealed class InputField : IInputField, IDisposable
     public void Dispose()
     {
         Dispose(true);
+        // ReSharper disable once GCSuppressFinalizeForTypeWithoutDestructor
         GC.SuppressFinalize(this);
     }
 

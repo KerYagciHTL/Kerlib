@@ -17,7 +17,7 @@ public sealed class MacWindow : INativeWindow
         _height = height;
         if (bgColor.HasValue) _backgroundColor = bgColor.Value;
         
-        // TODO: Implement Cocoa window creation
+
         Console.WriteLine($"[Mac] Window created: {title}");
     }
 
@@ -41,7 +41,6 @@ public sealed class MacWindow : INativeWindow
 
     public void Show() 
     {
-        // TODO: Show window
         Console.WriteLine("[Mac] Window shown");
     }
 
@@ -56,9 +55,7 @@ public sealed class MacWindow : INativeWindow
 
     public bool ProcessMessages()
     {
-        // TODO: Implement Cocoa/AppKit message processing
-        // For now, simulate a simple delay to prevent busy-waiting
-        Thread.Sleep(16); // ~60 FPS
+        Thread.Sleep(16);
         return true;
     }
 
