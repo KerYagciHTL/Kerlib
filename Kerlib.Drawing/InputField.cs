@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿﻿using System.Text;
 using Kerlib.Interfaces;
 using Kerlib.Native;
 
@@ -158,32 +158,20 @@ public sealed class InputField : IInputField, IDisposable
 
         var bgColor = _focused ? BgFocused : _hovered ? BgHover : BgNormal;
 
-        var brush = GdiCache.GetOrCreateBrush(bgColor);
-        var oldBrush = NativeMethods.SelectObject(hdc, brush);
+        // Fill background
+        GraphicsContext.FillRectangle(hdc, _position.X, _position.Y, 
+            _position.X + _width, _position.Y + _height, bgColor);
 
+        // Draw border
         var penColor = NativeMethods.Rgb(0, 0, 0);
-        var pen = GdiCache.GetOrCreatePen(1, penColor);
-        var oldPen = NativeMethods.SelectObject(hdc, pen);
-
-        NativeMethods.Rectangle(hdc, _position.X, _position.Y, _position.X + _width, _position.Y + _height);
-
-        NativeMethods.SelectObject(hdc, oldBrush);
-        NativeMethods.SelectObject(hdc, oldPen);
-
-        var rect = new NativeMethods.Rect
-        {
-            left = _position.X + 4,
-            top = _position.Y,
-            right = _position.X + _width - 4,
-            bottom = _position.Y + _height
-        };
+        GraphicsContext.DrawRectangle(hdc, _position.X, _position.Y, 
+            _position.X + _width, _position.Y + _height, penColor);
 
         var drawText = _cachedText ??= _textBuilder.ToString();
 
-        NativeMethods.SetTextColor(hdc, Fg);
-        NativeMethods.SetBkMode(hdc, 1); // TRANSPARENT
-
-        NativeMethods.DrawText(hdc, drawText, drawText.Length, ref rect,
+        // Draw text
+        GraphicsContext.DrawTextInRect(hdc, drawText, _position.X + 4, _position.Y, 
+            _position.X + _width - 4, _position.Y + _height, Fg,
             NativeMethods.DtLeft | NativeMethods.DtVcenter | NativeMethods.DtSingleline);
 
         if (_focused && (DateTime.Now - _lastBlink).TotalMilliseconds > 500)
@@ -202,8 +190,7 @@ public sealed class InputField : IInputField, IDisposable
         }
 
         var cursorX = _position.X + 4 + _cachedCursorXOffset;
-        NativeMethods.MoveToEx(hdc, cursorX, _position.Y + 2, IntPtr.Zero);
-        NativeMethods.LineTo(hdc, cursorX, _position.Y + _height - 2);
+        GraphicsContext.DrawLine(hdc, cursorX, _position.Y + 2, cursorX, _position.Y + _height - 2, penColor);
     }
 
     public bool HandleMouseMove(int x, int y)
@@ -270,8 +257,9 @@ public sealed class InputField : IInputField, IDisposable
     {
         if (length <= 0) return 0;
         if (length > text.Length) length = text.Length;
-        NativeMethods.GetTextExtentPoint32(hdc, text, length, out var size); // vermeidet Substring-Allocation
-        return size.cx;
+        var prefix = text.Substring(0, length);
+        var (width, _) = GraphicsContext.MeasureText(hdc, prefix);
+        return width;
     }
 
     private bool Contains(int x, int y) =>

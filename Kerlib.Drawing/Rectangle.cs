@@ -1,4 +1,4 @@
-﻿using Kerlib.Interfaces;
+﻿﻿using Kerlib.Interfaces;
 using Kerlib.Native;
 
 public sealed class Rectangle : IRenderable
@@ -17,9 +17,6 @@ public sealed class Rectangle : IRenderable
 
     public void Draw(IntPtr hdc)
     {
-        var pen = GdiCache.GetOrCreatePen(1, _color);
-        var oldPen = NativeMethods.SelectObject(hdc, pen);
-        NativeMethods.Rectangle(hdc, _left, _top, _right, _bottom);
-        NativeMethods.SelectObject(hdc, oldPen);
+        GraphicsContext.DrawRectangle(hdc, _left, _top, _right, _bottom, _color);
     }
 }

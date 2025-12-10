@@ -1,4 +1,4 @@
-﻿using Kerlib.Interfaces;
+﻿﻿using Kerlib.Interfaces;
 using Kerlib.Native;
 
 namespace Kerlib.Drawing
@@ -69,11 +69,7 @@ namespace Kerlib.Drawing
         public void Draw(IntPtr hdc)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(Line));
-            var pen = GdiCache.GetOrCreatePen(1, _color);
-            var oldPen = NativeMethods.SelectObject(hdc, pen);
-            NativeMethods.MoveToEx(hdc, _start.X, _start.Y, IntPtr.Zero);
-            NativeMethods.LineTo(hdc, _end.X, _end.Y);
-            NativeMethods.SelectObject(hdc, oldPen);
+            GraphicsContext.DrawLine(hdc, _start.X, _start.Y, _end.X, _end.Y, _color);
         }
 
         public void Dispose()

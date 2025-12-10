@@ -1,4 +1,4 @@
-﻿using Kerlib.Interfaces;
+﻿﻿using Kerlib.Interfaces;
 using Kerlib.Native;
 
 namespace Kerlib.Drawing
@@ -80,15 +80,8 @@ namespace Kerlib.Drawing
 
         public void Draw(IntPtr hdc)
         {
-            NativeMethods.SetTextColor(hdc, NativeMethods.Rgb(_color));
-            NativeMethods.SetBkMode(hdc, 1);
-
-            IntPtr hFont = FontCache.GetOrCreateFont(_fontName, _fontSize);
-            IntPtr oldFont = NativeMethods.SelectObject(hdc, hFont);
-
-            NativeMethods.TextOutW(hdc, _position.X, _position.Y, _content, _content.Length);
-
-            NativeMethods.SelectObject(hdc, oldFont);
+            GraphicsContext.DrawText(hdc, _position.X, _position.Y, _content, 
+                NativeMethods.Rgb(_color), _fontName, _fontSize);
         }
     }
 }

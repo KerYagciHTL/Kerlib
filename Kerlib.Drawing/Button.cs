@@ -1,4 +1,4 @@
-﻿using Kerlib.Interfaces;
+﻿﻿using Kerlib.Interfaces;
 using Kerlib.Native;
 
 namespace Kerlib.Drawing;
@@ -84,28 +84,17 @@ public sealed class Button : IButton, IDisposable
 
         var bgColor = _pressed ? BackgroundPressed : _hovered ? BackgroundHover : BackgroundNormal;
 
-        var brush = GdiCache.GetOrCreateBrush(NativeMethods.Rgb(bgColor));
-        var oldBrush = NativeMethods.SelectObject(hdc, brush);
+        // Fill background
+        GraphicsContext.FillRectangle(hdc, _position.X, _position.Y, 
+            _position.X + _width, _position.Y + _height, NativeMethods.Rgb(bgColor));
 
-        var pen = GdiCache.GetOrCreatePen(1, NativeMethods.Rgb(new Color(0,0,0)));
-        var oldPen = NativeMethods.SelectObject(hdc, pen);
+        // Draw border
+        GraphicsContext.DrawRectangle(hdc, _position.X, _position.Y, 
+            _position.X + _width, _position.Y + _height, NativeMethods.Rgb(new Color(0, 0, 0)));
 
-        NativeMethods.Rectangle(hdc, _position.X, _position.Y, _position.X + _width, _position.Y + _height);
-
-        NativeMethods.SelectObject(hdc, oldBrush);
-        NativeMethods.SelectObject(hdc, oldPen);
-
-        var rect = new NativeMethods.Rect
-        {
-            left = _position.X,
-            top = _position.Y,
-            right = _position.X + _width,
-            bottom = _position.Y + _height
-        };
-
-        NativeMethods.SetTextColor(hdc, NativeMethods.Rgb(Foreground));
-        NativeMethods.SetBkMode(hdc, 1); // TRANSPARENT
-        NativeMethods.DrawText(hdc, Text, Text.Length, ref rect,
+        // Draw text
+        GraphicsContext.DrawTextInRect(hdc, Text, _position.X, _position.Y, 
+            _position.X + _width, _position.Y + _height, NativeMethods.Rgb(Foreground),
             NativeMethods.DtCenter | NativeMethods.DtVcenter | NativeMethods.DtSingleline);
     }
 
