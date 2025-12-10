@@ -265,6 +265,10 @@ public sealed class LinuxWindow : INativeWindow
                         {
                             MouseWheel?.Invoke(x, y, -120);
                         }
+                        
+                        if (_isDestroyed)
+                            return false;
+                            
                         Invalidate();
                     }
                     break;
@@ -280,6 +284,10 @@ public sealed class LinuxWindow : INativeWindow
                                 button.HandleMouseUp(x, y);
                             MouseUp?.Invoke(x, y);
                         }
+                        
+                        if (_isDestroyed)
+                            return false;
+                            
                         Invalidate();
                     }
                     break;
@@ -306,6 +314,7 @@ public sealed class LinuxWindow : INativeWindow
                 case X11NativeMethods.ClientMessage:
                     if (xevent.xclient.data_l0 == X11NativeMethods.XInternAtom(_display, "WM_DELETE_WINDOW", false))
                     {
+                        Closed?.Invoke();
                         return false;
                     }
                     break;

@@ -45,12 +45,7 @@ public static class WindowManager
     {
         while (!_shouldQuit && _currentWindow != null)
         {
-            var nativeWindow = _currentWindow.GetNativeWindow();
-            if (!nativeWindow.ProcessMessages())
-            {
-                _shouldQuit = true;
-                break;
-            }
+            _currentWindow.GetNativeWindow().ProcessMessages();
         }
 
         if (_currentWindow == null) return;
